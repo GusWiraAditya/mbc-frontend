@@ -20,12 +20,12 @@
 // }
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+// import "@./globals.css";
 
 // Asumsikan path komponen ini sudah benar menggunakan alias
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
-import { Toaster } from "@/components/ui/sonner";
+// import { Toaster } from "@/components/ui/sonner";
 
 // Konfigurasi font default dari Google Fonts
 const inter = Inter({ subsets: ["latin"] });
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   description: "High-quality genuine leather products, handcrafted with passion.",
 };
 
-export default function RootLayout({
+export default function AdminLayout({
   children,
 }:{
   children: React.ReactNode;
@@ -44,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className={inter.className}>
-        <Toaster richColors  position="top-center" />
+        {/* <Toaster richColors position="top-center" /> */}
 
         {/* Navbar akan selalu tampil di bagian atas semua halaman */}
         {/* <Navbar /> */}
