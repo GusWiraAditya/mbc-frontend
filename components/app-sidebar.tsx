@@ -156,7 +156,7 @@ export function AppSidebar({
         {user && <NavUser user={{
           name: user.name,
           email: user.email,
-          avatar: user.avatar || "/avatars/default.jpg"
+          // avatar: user.avatar || "/avatars/default.jpg"
         }} />}
       </SidebarFooter>
       <SidebarRail />
