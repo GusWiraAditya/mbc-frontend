@@ -21,7 +21,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { user } = await getAuthenticatedUser();
       set({ user, isAuthenticated: true });
     } catch (error) {
-      console.error("No authenticated user found.");
+      // REVISI: Hapus console.error di sini.
+      // Kegagalan mengambil user adalah kondisi normal jika belum login.
+      // Cukup atur state ke logout tanpa menampilkan error di konsol.
+      // console.error("No authenticated user found."); // <-- HAPUS ATAU KOMENTARI BARIS INI
+      
       set({ user: null, isAuthenticated: false });
     }
   },

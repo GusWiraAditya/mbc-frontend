@@ -3,7 +3,9 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { showError, showSuccess } from '@/lib/toast'
+ // Tambahkan useRouter
 // REVISI: Mengimpor ikon ShoppingCart
 import { Menu, X, Search, User, LogOut, ChevronDown, ShoppingCart } from "lucide-react";
 
@@ -31,11 +33,17 @@ export default function Navbar() {
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isHome = pathname === "/";
+  const router = useRouter(); // Inisialisasi router
 
   // Efek untuk mengambil data user saat komponen pertama kali dimuat
-  useEffect(() => {
+useEffect(() => {
+  // Hanya coba fetch user jika state kita belum terotentikasi.
+  // Ini berguna untuk memeriksa sesi saat pertama kali membuka aplikasi.
+  // Jika sudah isAuthenticated, tidak perlu fetch lagi.
+  if (!isAuthenticated) {
     fetchUser();
-  }, [fetchUser]);
+  }
+}, [isAuthenticated, fetchUser]); // Tambahkan isAuthenticated sebagai dependency
 
   // Efek untuk scroll
   useEffect(() => {
@@ -61,9 +69,13 @@ export default function Navbar() {
   }, [pathname]);
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
-  const handleLogout = async () => {
+   const handleLogout = async () => {
     await logout(); 
     setIsProfileOpen(false);
+      // TAMBAHKAN BARIS INI untuk menampilkan pesan toast
+  showSuccess('Anda telah berhasil logout.'); 
+    // REVISI: Arahkan ke halaman login setelah logout
+    router.push('/'); 
   };
 
   const navColor = isHome && !isScrolled ? "text-white" : "text-primary";

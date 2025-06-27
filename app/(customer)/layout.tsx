@@ -1,23 +1,4 @@
-// app/layout.tsx
 
-// import "./globals.css"
-// import { Toaster } from "sonner"
-// import type { Metadata } from "next"
-
-// export const metadata: Metadata = {
-//   title: "Made By Can",
-//   description: "E-Commerce Penjualan Tas Lokal",
-// }
-
-// export default function RootLayout({ children }: { children: React.ReactNode }) {
-//   return (
-//     <html lang="id">
-//       <body>
-//         {children}
-//       </body>
-//     </html>
-//   )
-// }
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 // import "./globals.css";
@@ -42,8 +23,7 @@ export default function CustomerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
-      <body className={inter.className}>
+<>
         {/* <Toaster richColors position="top-center" /> */}
 
         {/* Navbar akan selalu tampil di bagian atas semua halaman */}
@@ -56,7 +36,6 @@ export default function CustomerLayout({
         
         {/* Footer akan selalu tampil di bagian bawah semua halaman */}
         <Footer />
-      </body>
-    </html>
+        </>
   );
 }

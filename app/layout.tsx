@@ -44,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className={inter.className}>
-        <Toaster richColors  position="top-center" />
+        <Toaster richColors  position="top-center" theme="light" />
 
         {/* Navbar akan selalu tampil di bagian atas semua halaman */}
         {/* <Navbar /> */}

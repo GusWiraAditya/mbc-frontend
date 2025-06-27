@@ -80,11 +80,12 @@ export const logout = async () => {
  */
 export const getAuthenticatedUser = async (): Promise<AuthenticatedUser> => {
   try {
-    // Pastikan endpoint ini benar, biasanya '/api/user' pada Laravel
     const response = await api.get<AuthenticatedUser>('/user'); 
     return response.data;
   } catch (error) {
-    console.error('Gagal mengambil data user:', error);
+    // REVISI: Hapus console.error di sini.
+    // Biarkan store yang memutuskan cara menangani error ini.
+    // console.error('Gagal mengambil data user:', error); // <-- HAPUS ATAU KOMENTARI BARIS INI
     throw error;
   }
 };
