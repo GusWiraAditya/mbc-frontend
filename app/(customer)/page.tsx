@@ -155,6 +155,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {/* REVISI: Menggunakan `item.id` untuk `key` */}
           {productsData.map((item, idx) => (
+            
             <motion.div
               custom={idx}
               initial="hidden"
@@ -163,7 +164,9 @@ export default function HomePage() {
               key={item.id}
               className="w-full h-full overflow-hidden rounded group cursor-pointer"
             >
+              <Link href={`/detailProducts/${item.id}`} className="flex-shrink-0">
               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
+                
                 <Image
                     src={item.img}
                     alt={item.name}
@@ -182,6 +185,7 @@ export default function HomePage() {
                   {item.price.toLocaleString("id-ID")}
                 </p>
               </div>
+              </Link>
             </motion.div>
           ))}
         </div>
