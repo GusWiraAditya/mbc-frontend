@@ -14,11 +14,11 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // REVISI: Hapus console.log di sini, karena sudah ditangani di level store.
-      // console.log("Sesi tidak valid, perlu login ulang."); // <-- HAPUS ATAU KOMENTARI BARIS INI
-    }
-    // ...
+    // if (error.response?.status === 401) {
+    //   // REVISI: Hapus console.log di sini, karena sudah ditangani di level store.
+    //   // console.log("Sesi tidak valid, perlu login ulang."); // <-- HAPUS ATAU KOMENTARI BARIS INI
+    // }
+    // // ...
     return Promise.reject(error);
   }
 );

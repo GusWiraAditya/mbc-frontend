@@ -11,11 +11,7 @@ import {
   Sparkles,
 } from "lucide-react"
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,27 +30,21 @@ import {
 import { useAuthStore } from "@/lib/store" 
 import { Skeleton } from "@/components/ui/skeleton"
 
-// REVISI: Komponen tidak lagi menerima props 'user'
+// Komponen ini tidak lagi menerima props 'user'
 export function NavUser() {
   const { isMobile } = useSidebar()
-  // REVISI: Mengambil semua state dan fungsi yang dibutuhkan dari store
-  const { user, isAuthenticated, fetchUser, logout } = useAuthStore() 
+ // REVISI: Hanya mengambil state dan fungsi logout, tidak lagi fetchUser
+  const { user, logout } = useAuthStore() 
   const router = useRouter() 
 
-  // REVISI: Mengambil data user dari store saat komponen dimuat
-  useEffect(() => {
-    if (!isAuthenticated) {
-      fetchUser()
-    }
-  }, [isAuthenticated, fetchUser])
 
   const handleLogout = async () => {
     await logout()
-    // REVISI: Mengarahkan ke halaman login admin yang benar
     router.push("/auth/login-admin") 
   }
 
-  // REVISI: Menampilkan UI skeleton saat data user belum tersedia
+ 
+  // UI loading jika data dari AuthProvider belum siap
   if (!user) {
     return (
       <SidebarMenu>
@@ -71,6 +61,7 @@ export function NavUser() {
     )
   }
 
+  // Tampilkan data user jika sudah tersedia
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -81,8 +72,7 @@ export function NavUser() {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                {/* Asumsikan user memiliki properti 'avatar' */}
-                {/* <AvatarImage src={user.avatar || ''} alt={user.name} /> */}
+                <AvatarImage src={user.avatar || ''} alt={user.name} />
                 <AvatarFallback className="rounded-lg">
                   {user.name.charAt(0).toUpperCase()}
                 </AvatarFallback>
@@ -103,7 +93,7 @@ export function NavUser() {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  {/* <AvatarImage src={user.avatar || ''} alt={user.name} /> */}
+                  <AvatarImage src={user.avatar || ''} alt={user.name} />
                   <AvatarFallback className="rounded-lg">
                     {user.name.charAt(0).toUpperCase()}
                   </AvatarFallback>

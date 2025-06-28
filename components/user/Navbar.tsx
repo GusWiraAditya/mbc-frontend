@@ -4,18 +4,14 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { showError, showSuccess } from '@/lib/toast'
- // Tambahkan useRouter
-// REVISI: Mengimpor ikon ShoppingCart
+import { showError, showSuccess } from '@/lib/toast';
 import { Menu, X, Search, User, LogOut, ChevronDown, ShoppingCart } from "lucide-react";
 
-// Menggunakan path alias untuk impor yang lebih rapi
 import { Button } from "@/components/ui/button"; 
 import logoPrim from "@/public/logo/mbc-primary.png";
 import logoPutih from "@/public/logo/mbc-putih.png";
 import { useAuthStore } from "@/lib/store";
 
-// Data link navigasi
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/collections", label: "Collections" },
@@ -28,22 +24,17 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false); 
   
-  const { user, isAuthenticated, fetchUser, logout } = useAuthStore();
+  // REVISI: Navbar sekarang hanya membaca state dari store.
+  // Tidak ada lagi pemanggilan fetchUser() dari sini.
+  const { user, isAuthenticated, logout } = useAuthStore();
   
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isHome = pathname === "/";
-  const router = useRouter(); // Inisialisasi router
+  const router = useRouter(); 
 
-  // Efek untuk mengambil data user saat komponen pertama kali dimuat
-useEffect(() => {
-  // Hanya coba fetch user jika state kita belum terotentikasi.
-  // Ini berguna untuk memeriksa sesi saat pertama kali membuka aplikasi.
-  // Jika sudah isAuthenticated, tidak perlu fetch lagi.
-  if (!isAuthenticated) {
-    fetchUser();
-  }
-}, [isAuthenticated, fetchUser]); // Tambahkan isAuthenticated sebagai dependency
+  // REVISI: useEffect untuk fetchUser() telah DIHAPUS.
+  // Tugas ini sekarang sepenuhnya ditangani oleh AuthProvider di layout.
 
   // Efek untuk scroll
   useEffect(() => {
@@ -69,12 +60,10 @@ useEffect(() => {
   }, [pathname]);
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
-   const handleLogout = async () => {
+  const handleLogout = async () => {
     await logout(); 
     setIsProfileOpen(false);
-      // TAMBAHKAN BARIS INI untuk menampilkan pesan toast
-  showSuccess('Anda telah berhasil logout.'); 
-    // REVISI: Arahkan ke halaman login setelah logout
+    showSuccess('Anda telah berhasil logout.'); 
     router.push('/'); 
   };
 
@@ -96,6 +85,7 @@ useEffect(() => {
             <Image
               src={isHome && !isScrolled ? logoPutih : logoPrim}
               alt="MBC Logo"
+              height={80}
               className="h-14 sm:h-20 w-auto"
               priority
             />
@@ -131,7 +121,6 @@ useEffect(() => {
               />
             </div>
             
-            {/* --- REVISI: Menambahkan Ikon Keranjang --- */}
             {isAuthenticated && user ? (
               <div className="flex items-center gap-6">
                 <Link href="/cart" aria-label="Shopping Cart" className={`${navColor} hover:text-secondary transition-colors`}>

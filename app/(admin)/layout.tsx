@@ -1,62 +1,34 @@
-// app/layout.tsx
-
-// import "./globals.css"
-// import { Toaster } from "sonner"
-// import type { Metadata } from "next"
-
-// export const metadata: Metadata = {
-//   title: "Made By Can",
-//   description: "E-Commerce Penjualan Tas Lokal",
-// }
-
-// export default function RootLayout({ children }: { children: React.ReactNode }) {
-//   return (
-//     <html lang="id">
-//       <body>
-//         {children}
-//       </body>
-//     </html>
-//   )
-// }
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-// import "@./globals.css";
+import "../globals.css"; // Tetap perlukan CSS global untuk utilitas
+import AuthProvider from "@/lib/providers/AuthProvider"; // Perlu AuthProvider sendiri untuk validasi sesi
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import * as React from "react"; // Import React untuk menggunakan tipenya
 
-// Asumsikan path komponen ini sudah benar menggunakan alias
-import Navbar from "@/components/user/Navbar";
-import Footer from "@/components/user/Footer";
-// import { Toaster } from "@/components/ui/sonner";
 
-// Konfigurasi font default dari Google Fonts
-const inter = Inter({ subsets: ["latin"] });
-
-// Metadata untuk SEO, akan muncul di tab browser
 export const metadata: Metadata = {
-  title: "MadeByCan | Handcrafted Leather Goods",
-  description: "High-quality genuine leather products, handcrafted with passion.",
+  title: "Admin Panel - MadeByCan",
+  description: "Admin dashboard for managing the store.",
 };
 
 export default function AdminLayout({
   children,
-}:{
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="id">
-      <body className={inter.className}>
-        {/* <Toaster richColors position="top-center" /> */}
-
-        {/* Navbar akan selalu tampil di bagian atas semua halaman */}
-        {/* <Navbar /> */}
-        
-        {/* 'children' adalah tempat di mana halaman (seperti HomePage) akan dirender */}
-        {/* <main> */}
-          {children}
-        {/* </main> */}
-        
-        {/* Footer akan selalu tampil di bagian bawah semua halaman */}
-        {/* <Footer /> */}
-      </body>
-    </html>
+    // Memiliki <html> dan <body> sendiri untuk isolasi total
+   
+        <AuthProvider>
+          <SidebarProvider>
+            {/* <div className="flex h-screen bg-gray-100"> */}
+              <AppSidebar />
+              {/* {children} akan menjadi halaman dashboard admin */}
+              {children} 
+            {/* </div> */}
+          </SidebarProvider>
+        </AuthProvider>
+  
   );
 }

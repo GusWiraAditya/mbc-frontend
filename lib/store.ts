@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import { getAuthenticatedUser, logout as apiLogout, AuthenticatedUser } from './auth';
+import { getAuthenticatedUser, logout as apiLogout, User, AuthenticatedUser } from './auth';
+import axios from 'axios';
 
-// Tipe untuk state dan actions di dalam store
 interface AuthState {
-  user: AuthenticatedUser['user'] | null;
+  user: User | null;
   isAuthenticated: boolean;
   fetchUser: () => Promise<void>;
   logout: () => Promise<void>;
@@ -13,26 +13,28 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   
-  /**
-   * Mengambil data user yang sedang login dan memperbarui state.
-   */
   fetchUser: async () => {
     try {
-      const { user } = await getAuthenticatedUser();
-      set({ user, isAuthenticated: true });
+      const authenticatedData = await getAuthenticatedUser();
+      const userWithRoles = {
+          ...authenticatedData.user,
+          roles: authenticatedData.roles,
+      };
+      set({ user: userWithRoles, isAuthenticated: true });
     } catch (error) {
-      // REVISI: Hapus console.error di sini.
-      // Kegagalan mengambil user adalah kondisi normal jika belum login.
-      // Cukup atur state ke logout tanpa menampilkan error di konsol.
-      // console.error("No authenticated user found."); // <-- HAPUS ATAU KOMENTARI BARIS INI
-      
+      // REVISI: Menganggap kegagalan fetch sebagai kondisi normal untuk guest.
+      // Kita tidak perlu menampilkan pesan error yang mengkhawatirkan di console.
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        // Ini adalah kasus yang diharapkan jika user belum login.
+        // console.log("Session not found, user is a guest.");
+      } else {
+        // Jika errornya bukan 401, mungkin ada masalah lain yang perlu dicatat.
+        console.error("An unexpected error occurred while fetching user:", error);
+      }
       set({ user: null, isAuthenticated: false });
     }
   },
 
-  /**
-   * Proses logout, memanggil API dan membersihkan state.
-   */
   logout: async () => {
     try {
       await apiLogout();
