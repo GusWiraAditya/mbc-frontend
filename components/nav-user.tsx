@@ -1,50 +1,49 @@
 "use client"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/lib/store";
+import { Skeleton } from "@/components/ui/skeleton";
+import { showSuccess, showError } from "@/lib/toast";
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation" 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react"
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
-import { useAuthStore } from "@/lib/store" 
-import { Skeleton } from "@/components/ui/skeleton"
-
-// Komponen ini tidak lagi menerima props 'user'
 export function NavUser() {
-  const { isMobile } = useSidebar()
- // REVISI: Hanya mengambil state dan fungsi logout, tidak lagi fetchUser
-  const { user, logout } = useAuthStore() 
-  const router = useRouter() 
+  const { isMobile } = useSidebar();
+  const { user, logout } = useAuthStore();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-
+   /**
+   * REVISI KUNCI: handleLogout sekarang mengelola alur UI secara lengkap untuk admin.
+   */
   const handleLogout = async () => {
-    await logout()
-    router.push("/auth/login-admin") 
-  }
+    // Mencegah klik ganda saat proses logout sedang berjalan
+    if (isLoggingOut) return;
+    
+    setIsLoggingOut(true);
+    
+    try {
+      // 1. Panggil fungsi logout dari store untuk menghancurkan sesi.
+      await logout();
+      
+      // 2. Tampilkan pesan sukses.
+      showSuccess('Anda telah berhasil logout.');
+      
+      // 3. Arahkan ke halaman login admin setelah logout berhasil.
+      // Kita tidak perlu jeda di sini karena tidak ada state yang perlu ditunggu.
+      router.push("/auth/login-admin");
 
- 
-  // UI loading jika data dari AuthProvider belum siap
+    } catch (error) {
+      showError("Logout gagal, silakan coba lagi.");
+      console.error("Logout failed:", error);
+    } finally {
+      // Pastikan state loading selalu direset
+      setIsLoggingOut(false);
+    }
+  };
+
   if (!user) {
     return (
       <SidebarMenu>
@@ -58,18 +57,18 @@ export function NavUser() {
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
-    )
+    );
   }
 
-  // Tampilkan data user jika sudah tersedia
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
+            <SidebarMenuButton 
+              size="lg" 
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              disabled={isLoggingOut}
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar || ''} alt={user.name} />
@@ -84,10 +83,11 @@ export function NavUser() {
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
+          
+          <DropdownMenuContent 
+            className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-56 rounded-lg" 
+            side={isMobile ? "bottom" : "right"} 
+            align="end" 
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
@@ -104,14 +104,18 @@ export function NavUser() {
                 </div>
               </div>
             </DropdownMenuLabel>
+            
             <DropdownMenuSeparator />
+            
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles className="mr-2 h-4 w-4" />
                 <span>Upgrade to Pro</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
+            
             <DropdownMenuSeparator />
+            
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheck className="mr-2 h-4 w-4" />
@@ -126,14 +130,29 @@ export function NavUser() {
                 <span>Notifications</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
+            
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} className="text-red-500 focus:bg-red-50 focus:text-red-600 cursor-pointer">
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+            
+            <DropdownMenuItem 
+              onClick={handleLogout} 
+              className="text-red-500 focus:bg-red-50 focus:text-red-600 cursor-pointer"
+              disabled={isLoggingOut}
+            >
+              {isLoggingOut ? (
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                  <span>Logging out...</span>
+                </>
+              ) : (
+                <>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </>
+              )}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

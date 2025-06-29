@@ -1,37 +1,63 @@
 "use client";
-
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/store";
+import logoPrim from "@/public/logo/mbc-primary.png";
+import Image from "next/image";
 
-/**
- * Komponen ini bertanggung jawab untuk mengambil status autentikasi pengguna
- * hanya sekali saat aplikasi dimuat, dan menyediakannya untuk seluruh aplikasi.
- */
-export default function AuthProvider({ children }: { children: React.ReactNode }) {
-  const fetchUser = useAuthStore((state) => state.fetchUser);
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
+
+export default function AuthProvider({ children }: AuthProviderProps) {
+  const { initialize, isInitialized, isAuthLoading } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
+  // const pathname = usePathname();
 
   useEffect(() => {
-    // Fungsi ini akan berjalan sekali untuk menginisialisasi state auth.
     const initializeAuth = async () => {
       try {
-        await fetchUser();
+        await initialize();
       } catch (error) {
-        console.error("Initialization auth error:", error);
+        // console.error("Auth initialization error:", error);
+        throw new Error("Failed to initialize authentication");
       } finally {
         setIsLoading(false);
       }
     };
 
-    initializeAuth();
-  }, [fetchUser]);
+    if (!isInitialized) {
+      initializeAuth();
+    } else {
+      setIsLoading(false);
+    }
+  }, [initialize, isInitialized]);
 
-  // Selama pengecekan, kita bisa menampilkan loading state global
-  // atau tidak menampilkan apa-apa untuk mencegah "kedipan" UI.
-  if (isLoading) {
-    return null; 
+  // Show loading only during initial authentication check
+  if (isLoading || (!isInitialized && isAuthLoading)) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-gray-100">
+        <div className="flex flex-col items-center gap-2">
+          <Image
+            src={logoPrim}
+            alt="MBC Logo"
+            width={120}
+            height={120}
+            className="mb-2"
+            priority
+          />
+          <div
+            className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
+            role="status"
+            aria-label="loading"
+          />
+          {/* <p className="text-sm text-muted-foreground">
+            Verifying authentication...
+          </p> */}
+        </div>
+      </div>
+    );
   }
 
-  // Setelah selesai, tampilkan sisa aplikasi.
   return <>{children}</>;
 }

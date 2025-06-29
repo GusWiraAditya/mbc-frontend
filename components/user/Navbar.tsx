@@ -60,11 +60,27 @@ export default function Navbar() {
   }, [pathname]);
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
+
+/**
+   * REVISI KUNCI: handleLogout sekarang mengelola alur UI secara lengkap.
+   */
   const handleLogout = async () => {
-    await logout(); 
-    setIsProfileOpen(false);
-    showSuccess('Anda telah berhasil logout.'); 
-    router.push('/'); 
+    try {
+      // 1. Panggil fungsi logout dari store untuk menghancurkan sesi.
+      await logout(); 
+      setIsProfileOpen(false);
+      
+      // 2. Tampilkan pesan sukses.
+      showSuccess('Anda telah berhasil logout.'); 
+      
+      // 3. Beri sedikit jeda agar user sempat melihat toast, lalu redirect.
+      // setTimeout(() => {
+        router.push('/'); 
+      // }, 1500); // 1.5 detik
+
+    } catch (error) {
+      showError("Logout gagal, silakan coba lagi.");
+    }
   };
 
   const navColor = isHome && !isScrolled ? "text-white" : "text-primary";
