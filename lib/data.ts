@@ -23,6 +23,7 @@ export interface Category {
 export interface Product {
   id: number;
   img: StaticImageData;
+  thumbnail: StaticImageData[]; // Optional thumbnail for product listing
   name: string;
   price: number;
   category: "Shoulder Bag" | "Messenger Bag" | "Waist Bag";
@@ -57,14 +58,14 @@ export const categories: Category[] = [
 ];
 
 export const productsData: Product[] = [
-  { id: 1, img: bag1, name: "Spartan Backpack", price: 777000, category: "Messenger Bag", gender: "Unisex", rating: 4.5, availability: "In Stock", createdAt: "2025-06-18T10:00:00Z" },
-  { id: 2, img: bag2, name: "Pepz Backpack", price: 999000, category: "Messenger Bag", gender: "Unisex", rating: 5, availability: "In Stock", createdAt: "2025-05-20T11:00:00Z" },
-  { id: 3, img: bag3, name: "Zarwo Slingbag", price: 550000, category: "Shoulder Bag", gender: "Women", rating: 4, availability: "Out of Stock", createdAt: "2025-06-15T12:00:00Z" },
-  { id: 4, img: bag4, name: "Petod Leather Bag", price: 696900, category: "Shoulder Bag", gender: "Men", rating: 4.8, availability: "In Stock", createdAt: "2025-04-01T09:00:00Z" },
-  { id: 5, img: bag1, name: "Classic Waist Pouch", price: 350000, category: "Waist Bag", gender: "Unisex", rating: 3.9, availability: "In Stock", createdAt: "2025-06-10T14:00:00Z" },
-  { id: 6, img: bag2, name: "Urban Explorer", price: 1200000, category: "Messenger Bag", gender: "Men", rating: 4.9, availability: "In Stock", createdAt: "2025-06-01T16:00:00Z" },
-  { id: 7, img: bag3, name: "Elegant Crossbody", price: 850000, category: "Shoulder Bag", gender: "Women", rating: 4.7, availability: "Out of Stock", createdAt: "2025-03-25T18:00:00Z" },
-  { id: 8, img: bag4, name: "Rugged Utility Bag", price: 950000, category: "Waist Bag", gender: "Men", rating: 4.2, availability: "In Stock", createdAt: "2025-05-30T13:00:00Z" },
+  { id: 1, img: bag1, thumbnail: [bag1, bag2, bag3], name: "Spartan Backpack", price: 777000, category: "Messenger Bag", gender: "Unisex", rating: 4.5, availability: "In Stock", createdAt: "2025-06-18T10:00:00Z" },
+  { id: 2, img: bag2, thumbnail: [bag2, bag1, bag3], name: "Pepz Backpack", price: 999000, category: "Messenger Bag", gender: "Unisex", rating: 5, availability: "In Stock", createdAt: "2025-05-20T11:00:00Z" },
+  { id: 3, img: bag3, thumbnail: [bag3, bag2, bag1], name: "Zarwo Slingbag", price: 550000, category: "Shoulder Bag", gender: "Women", rating: 4, availability: "Out of Stock", createdAt: "2025-06-15T12:00:00Z" },
+  { id: 4, img: bag4, thumbnail: [bag4, bag3, bag2], name: "Petod Leather Bag", price: 696900, category: "Shoulder Bag", gender: "Men", rating: 4.8, availability: "In Stock", createdAt: "2025-04-01T09:00:00Z" },
+  { id: 5, img: bag1, thumbnail: [bag1, bag3, bag2], name: "Classic Waist Pouch", price: 350000, category: "Waist Bag", gender: "Unisex", rating: 3.9, availability: "In Stock", createdAt: "2025-06-10T14:00:00Z" },
+  { id: 6, img: bag2, thumbnail: [bag2, bag1, bag4], name: "Urban Explorer", price: 1200000, category: "Messenger Bag", gender: "Men", rating: 4.9, availability: "In Stock", createdAt: "2025-06-01T16:00:00Z" },
+  { id: 7, img: bag3, thumbnail: [bag3, bag2, bag4], name: "Elegant Crossbody", price: 850000, category: "Shoulder Bag", gender: "Women", rating: 4.7, availability: "Out of Stock", createdAt: "2025-03-25T18:00:00Z" },
+  { id: 8, img: bag4, thumbnail: [bag4, bag3, bag2], name: "Rugged Utility Bag", price: 950000, category: "Waist Bag", gender: "Men", rating: 4.2, availability: "In Stock", createdAt: "2025-05-30T13:00:00Z" },
 ];
 
 export const reviews: Review[] = [
