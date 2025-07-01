@@ -6,18 +6,27 @@ import Image from "next/image"; // Gunakan komponen Image dari Next.js untuk opt
 import { motion, Variants } from "framer-motion";
 
 // REVISI: Menggunakan path alias yang benar untuk komponen UI.
-import { Button } from "@/components/ui/button"; 
+import { Button } from "@/components/ui/button";
 
 // Impor ikon
 import { Play, ChevronDown, ChevronUp } from "lucide-react";
 import { FaStar, FaRegStarHalfStroke, FaRegStar } from "react-icons/fa6";
 
 // REVISI: Menggunakan path alias yang benar untuk data.
-import { categories, productsData, reviews, questions } from "@/lib/data";
+import {
+  categories,
+  productsData,
+  reviews,
+  questions,
+  galleryImages,
+} from "@/lib/data";
 
 // REVISI: Menggunakan path alias yang benar untuk gambar dari folder public.
-import bgImage from "@/public/background/background.jpeg"; 
+import bgImage from "@/public/background/background.jpeg";
 import Link from "next/link";
+import BannerSlider from "@/components/ui/banner-slider";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 // Animation variant untuk setiap item (tetap sama)
 const itemVariants: Variants = {
@@ -48,6 +57,11 @@ const renderStars = (rating: number) => {
   return stars;
 };
 
+const imageMotion = {
+  whileInView: { opacity: 1, y: 0 },
+  initial: { opacity: 0, y: 50 },
+  transition: { duration: 0.5 },
+};
 
 export default function HomePage() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -62,8 +76,8 @@ export default function HomePage() {
   useEffect(() => {
     document.body.style.overflowX = "hidden";
     return () => {
-        document.body.style.overflowX = 'auto';
-    }
+      document.body.style.overflowX = "auto";
+    };
   }, []);
 
   return (
@@ -91,11 +105,15 @@ export default function HomePage() {
             This elegant camera bag is crafted from high-quality genuine
             leather, offering durability, style, and practical organization.
           </p>
-          <Button size="lg" className="bg-secondary text-white font-bold hover:opacity-90">
+          <Button
+            size="lg"
+            className="bg-secondary text-white font-bold hover:opacity-90"
+          >
             Shop Now
           </Button>
         </motion.div>
       </section>
+      <BannerSlider />
 
       {/* Section 2: Top Categories */}
       <section className="p-6 md:px-20 md:pt-20">
@@ -149,13 +167,17 @@ export default function HomePage() {
           <h2 className="text-2xl sm:text-3xl font-bold text-primary">
             Our Top Collections
           </h2>
-          <Link href="/collections" className="text-sm font-normal cursor-pointer hover:underline">See More</Link>
+          <Link
+            href="/collections"
+            className="text-sm font-normal cursor-pointer hover:underline"
+          >
+            See More
+          </Link>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {/* REVISI: Menggunakan `item.id` untuk `key` */}
           {productsData.map((item, idx) => (
-            
             <motion.div
               custom={idx}
               initial="hidden"
@@ -164,160 +186,245 @@ export default function HomePage() {
               key={item.id}
               className="w-full h-full overflow-hidden rounded group cursor-pointer"
             >
-              <Link href={`/detailProducts/${item.id}`} className="flex-shrink-0">
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
-                
-                <Image
+              <Link
+                href={`/detailProducts/${item.id}`}
+                className="flex-shrink-0"
+              >
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
+                  <Image
                     src={item.img}
                     alt={item.name}
                     fill
                     style={{ objectFit: "cover" }}
                     className="transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                />
-              </div>
-              <div className="flex flex-col items-start mt-2">
-                <p className="text-black text-sm sm:text-lg font-semibold">
-                  {item.name}
-                </p>
-                <p className="text-black text-sm sm:text-lg font-normal">
-                  Rp.{" "}
-                  {item.price.toLocaleString("id-ID")}
-                </p>
-              </div>
+                  />
+                </div>
+                <div className="flex flex-col items-start mt-2">
+                  <p className="text-black text-sm sm:text-lg font-semibold">
+                    {item.name}
+                  </p>
+                  <p className="text-black text-sm sm:text-lg font-normal">
+                    Rp. {item.price.toLocaleString("id-ID")}
+                  </p>
+                </div>
               </Link>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Section 4: Video Player */}
-      <div className="relative w-full max-w-5xl h-[300px] md:h-[600px] mx-auto my-10 aspect-video overflow-hidden shadow-lg rounded-lg">
-        {!isPlaying ? (
-          <div
-            className="relative w-full h-full cursor-pointer"
-            onClick={() => setIsPlaying(true)}
-          >
-            <Image
-              src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
-              alt="Video Thumbnail"
-              fill
-              style={{ objectFit: "cover" }}
-              priority
-            />
-            <div className="absolute inset-0 bg-primary/60"></div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white/80 backdrop-blur-md p-5 rounded-full shadow-lg hover:scale-110 transition-transform duration-300">
-                <Play className="text-primary w-8 h-8" />
-              </div>
-            </div>
-          </div>
-        ) : (
-          <iframe
-            className="w-full h-full"
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
-            title="YouTube video player"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        )}
-      </div>
-      
-      {/* Section 5: Customer Reviews */}
+      {/* Section 4: Product Gallery - Ganti Video */}
       <section className="p-6 md:px-20 md:py-10">
-        <motion.h2
-            whileInView={{ opacity: 1, y: 0 }}
-            initial={{ opacity: 0, y: 100 }}
-            transition={{ duration: 0.7 }}
-            className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-8"
+        <motion.div
+          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 100 }}
+          transition={{ duration: 0.7 }}
+          className="flex items-center justify-between mb-4 sm:mb-8"
         >
-            Customer Reviews
-        </motion.h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {/* REVISI: Menggunakan `review.id` untuk `key` */}
-            {reviews.map((review, idx) => (
-            <motion.div
-                custom={idx}
+          <h2 className="text-2xl sm:text-3xl font-bold text-primary">
+            Gallery
+          </h2>
+          <Link
+            href="/collections"
+            className="text-sm font-normal cursor-pointer hover:underline"
+          >
+            See More
+          </Link>
+        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 items-start">
+          {/* Kolom Kiri */}
+          <div className="flex md:flex-col gap-4 h-full">
+            {[galleryImages[1].img].map((img, index) => (
+              <motion.div
+                custom={index}
                 initial="hidden"
                 whileInView="visible"
                 variants={itemVariants}
-                key={review.id}
-                className="w-full h-full overflow-hidden rounded-lg bg-neutral-50 shadow-md p-5 flex flex-col"
-            >
-                <div className="flex items-center border-b-2 border-primary/20 pb-3">
-                    <div className="relative w-20 h-20 rounded-full overflow-hidden mr-4 flex-shrink-0">
-                        <Image
-                            src={review.img}
-                            alt={review.name}
-                            fill
-                            style={{objectFit: "cover"}}
-                            sizes="80px"
-                        />
-                    </div>
-                    <div className="flex flex-col items-start text-primary">
-                        <p className="text-lg font-semibold">{review.name}</p>
-                        <p className="text-sm font-normal text-secondary">{review.email}</p>
-                        <div className="flex gap-1 mt-2">
-                            {renderStars(review.rating)}
-                        </div>
-                    </div>
-                </div>
-                <p className="text-sm text-justify mt-4 text-primary leading-relaxed">
-                    "{review.comment}"
-                </p>
-            </motion.div>
+                key={`left-${index}`}
+                className="relative w-full h-[215px] overflow-hidden flex-shrink-0 cursor-pointer group"
+              >
+                <Link href={`/gallery/${index}`}>
+                  <Image
+                    src={img}
+                    alt={`Thumbnail ${index + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </Link>
+              </motion.div>
             ))}
+          </div>
+
+          {/* Kolom Grid 1 */}
+          <div className="grid grid-cols-2 gap-1 h-full">
+            {[galleryImages[4].img, galleryImages[2].img].map((img, index) => (
+              <motion.div
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
+                variants={itemVariants}
+                key={`grid1-${index}`}
+                className="relative w-full h-[215px] overflow-hidden flex-shrink-0 cursor-pointer group"
+              >
+                <Link href={`/gallery/${index + 2}`}>
+                  <Image
+                    src={img}
+                    alt={`Grid1-${index + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Kolom Grid 2 */}
+          <div className="grid grid-cols-2 gap-1 h-full">
+            {[galleryImages[3].img, galleryImages[0].img].map((img, index) => (
+              <motion.div
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
+                variants={itemVariants}
+                key={`grid2-${index}`}
+                className="relative w-full h-[215px] overflow-hidden flex-shrink-0 cursor-pointer group"
+              >
+                <Link href={`/gallery/${index + 4}`}>
+                  <Image
+                    src={img}
+                    alt={`Grid2-${index + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Kolom Kanan */}
+          <div className="flex md:flex-col gap-4 h-full">
+            {[galleryImages[3].img].map((img, index) => (
+              <motion.div
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
+                variants={itemVariants}
+                key={`right-${index}`}
+                className="relative w-full h-[215px] overflow-hidden flex-shrink-0 cursor-pointer group"
+              >
+                <Link href={`/gallery/${index + 6}`}>
+                  <Image
+                    src={img}
+                    alt={`Thumbnail Right ${index + 1}`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section 5: Customer Reviews */}
+      <section className="p-6 md:px-20 md:py-10">
+        <motion.h2
+          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 100 }}
+          transition={{ duration: 0.7 }}
+          className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-8"
+        >
+          Customer Reviews
+        </motion.h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {/* REVISI: Menggunakan `review.id` untuk `key` */}
+          {reviews.map((review, idx) => (
+            <motion.div
+              custom={idx}
+              initial="hidden"
+              whileInView="visible"
+              variants={itemVariants}
+              key={review.id}
+              className="w-full h-full overflow-hidden rounded-lg bg-neutral-50 shadow-md p-5 flex flex-col"
+            >
+              <div className="flex items-center border-b-2 border-primary/20 pb-3">
+                <div className="relative w-20 h-20 rounded-full overflow-hidden mr-4 flex-shrink-0">
+                  <Image
+                    src={review.img}
+                    alt={review.name}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    sizes="80px"
+                  />
+                </div>
+                <div className="flex flex-col items-start text-primary">
+                  <p className="text-lg font-semibold">{review.name}</p>
+                  <p className="text-sm font-normal text-secondary">
+                    {review.email}
+                  </p>
+                  <div className="flex gap-1 mt-2">
+                    {renderStars(review.rating)}
+                  </div>
+                </div>
+              </div>
+              <p className="text-sm text-justify mt-4 text-primary leading-relaxed">
+                "{review.comment}"
+              </p>
+            </motion.div>
+          ))}
         </div>
       </section>
 
       {/* Section 6: FAQ */}
       <section className="bg-neutral-50 p-6 md:px-20 md:py-10">
         <div className="w-full max-w-4xl mx-auto px-4">
-            <motion.h2
-                whileInView={{ opacity: 1, y: 0 }}
-                initial={{ opacity: 0, y: 100 }}
-                transition={{ duration: 0.7 }}
-                className="text-2xl text-center sm:text-3xl font-bold text-primary mb-8"
-            >
-                Frequently Asked Questions
-            </motion.h2>
-            <div className="space-y-4">
+          <motion.h2
+            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 100 }}
+            transition={{ duration: 0.7 }}
+            className="text-2xl text-center sm:text-3xl font-bold text-primary mb-8"
+          >
+            Frequently Asked Questions
+          </motion.h2>
+          <div className="space-y-4">
             {/* REVISI: Menggunakan `item.id` untuk `key` dan `onClick` */}
             {questions.map((item, index) => (
-                <motion.div
-                    custom={index}
-                    initial="hidden"
-                    whileInView="visible"
-                    variants={itemVariants}
-                    key={item.id}
-                    className="bg-primary text-white rounded-xl px-6 py-4 shadow-md"
-                >
+              <motion.div
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
+                variants={itemVariants}
+                key={item.id}
+                className="bg-primary text-white rounded-xl px-6 py-4 shadow-md"
+              >
                 <div
-                    className="flex justify-between items-center cursor-pointer"
-                    onClick={() => toggleQuestion(item.id)}
+                  className="flex justify-between items-center cursor-pointer"
+                  onClick={() => toggleQuestion(item.id)}
                 >
-                    <h3 className="text-lg md:text-xl font-bold">{item.question}</h3>
-                    {activeIndex === item.id ? (
+                  <h3 className="text-lg md:text-xl font-bold">
+                    {item.question}
+                  </h3>
+                  {activeIndex === item.id ? (
                     <ChevronUp className="w-6 h-6 flex-shrink-0" />
-                    ) : (
+                  ) : (
                     <ChevronDown className="w-6 h-6 flex-shrink-0" />
-                    )}
+                  )}
                 </div>
                 {activeIndex === item.id && (
-                    <motion.p 
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        transition={{ duration: 0.3 }}
-                        className="mt-3 text-base text-white border-t-2 border-secondary/30 pt-3"
-                    >
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    transition={{ duration: 0.3 }}
+                    className="mt-3 text-base text-white border-t-2 border-secondary/30 pt-3"
+                  >
                     {item.answer}
-                    </motion.p>
+                  </motion.p>
                 )}
-                </motion.div>
+              </motion.div>
             ))}
-            </div>
+          </div>
         </div>
       </section>
     </>

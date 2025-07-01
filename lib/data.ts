@@ -18,6 +18,13 @@ export interface Category {
   img: StaticImageData;
   label: string;
 }
+export interface GalleryImage {
+  id: number;
+  img: StaticImageData;
+  thumbnail: StaticImageData[]; // Optional thumbnail for gallery
+  label: string;
+}
+
 
 // REVISED: Added `createdAt` property for sorting by date
 export interface Product {
@@ -55,6 +62,16 @@ export const categories: Category[] = [
   { id: 1, img: cat1, label: "Shoulder Bag" },
   { id: 2, img: cat2, label: "Messenger Bag" },
   { id: 3, img: cat3, label: "Waist Bag" },
+];
+export const galleryImages: GalleryImage[] = [
+  { id: 1, img: bag1, label: "Spartan Backpack", thumbnail: [bag1, bag2, bag3] },
+  { id: 2, img: bag2, label: "Pepz Backpack", thumbnail: [bag2, bag1, bag3] },
+  { id: 3, img: bag3, label: "Zarwo Slingbag", thumbnail: [bag3, bag2, bag1] },
+  { id: 4, img: bag4, label: "Petod Leather Bag", thumbnail: [bag4, bag3, bag2] },
+  { id: 5, img: bag1, label: "Classic Waist Pouch", thumbnail: [bag1, bag3, bag2] },
+  { id: 6, img: bag2, label: "Urban Explorer", thumbnail: [bag2, bag1, bag4] },
+  { id: 7, img: bag3, label: "Elegant Crossbody", thumbnail: [bag3, bag2, bag4] },
+  { id: 8, img: bag4, label: "Rugged Utility Bag", thumbnail: [bag4, bag3, bag2] },
 ];
 
 export const productsData: Product[] = [

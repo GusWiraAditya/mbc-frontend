@@ -22,6 +22,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+
 // Asumsikan path komponen ini sudah benar menggunakan alias
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
