@@ -66,7 +66,8 @@ const CheckoutPage = () => {
                 key={product.id}
                 className="flex items-center justify-between pb-2"
               >
-                <div className="flex items-center gap-4">
+                <Link href={`/detailProducts/${product.id}`}>
+                  <div className="flex items-center gap-4">
                   <Image
                     src={product.img}
                     alt={product.name}
@@ -77,6 +78,8 @@ const CheckoutPage = () => {
                     <p className="text-sm text-gray-700">{product.category}</p>
                   </div>
                 </div>
+                </Link>
+                
                 <p className="text-right font-semibold">
                   Rp. {product.price.toLocaleString("id-ID")}
                 </p>

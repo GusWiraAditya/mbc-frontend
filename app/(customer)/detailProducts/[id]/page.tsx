@@ -17,7 +17,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Carousel, CarouselItem } from "@/components/ui/carousel-user";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -69,8 +71,11 @@ export default function ProductDetailPage() {
     setIsGalleryOpen(false);
   };
 
-  // const sliderRef = useRef<Slider | null>(null);
+  const sliderRef = useRef<Slider | null>(null);
 
+  const handleAfterChange = (index: number) => {
+  setSelectedIndex(index);
+};
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -117,9 +122,19 @@ export default function ProductDetailPage() {
                 {/* Gambar Utama dengan Panah */}
                 <div className="relative w-full h-full aspect-auto">
                   <div className="relative w-full">
-                    <Carousel>
+                    <Slider
+                      ref={sliderRef}
+                      infinite={true}
+                      speed={800}
+                      autoplay={true}
+                      autoplaySpeed={3000}
+                      slidesToShow={1}
+                      slidesToScroll={1}
+                      arrows={false}
+                      afterChange={handleAfterChange}
+                    >
                       {product.thumbnail.map((img, index) => (
-                        <CarouselItem key={index}>
+                        <div key={index}>
                           <div className="relative w-full h-[400px] rounded overflow-hidden cursor-pointer">
                             <Image
                               src={img}
@@ -129,12 +144,35 @@ export default function ProductDetailPage() {
                               onClick={() => openGallery(index)}
                             />
                           </div>
-                        </CarouselItem>
+                        </div>
                       ))}
-                    </Carousel>
+                    </Slider>
                   </div>
                 </div>
-                
+                {/* Thumbnail */}
+                <div className="flex gap-2 pb-0">
+                  {product.thumbnail.map((img, index) => (
+                    <Card
+                      key={index}
+                      onClick={() => {
+                        setSelectedIndex(index);
+                        sliderRef.current?.slickGoTo(index);
+                      }}
+                      className={`relative w-14 h-14 rounded-md overflow-hidden cursor-pointer border-2 flex-shrink-0 transition-all duration-200 hover:scale-105 ${
+                        selectedIndex === index
+                          ? "border-gray-500 shadow-md"
+                          : "border-gray-200 hover:border-gray-400"
+                      }`}
+                    >
+                      <Image
+                        src={img}
+                        alt={`Thumb ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </Card>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -186,10 +224,11 @@ export default function ProductDetailPage() {
               </Accordion>
               <div className="flex gap-4 items-center justify-center md:items-start md:justify-start">
                 <Link href="/checkout">
-                  <Button className="bg-secondary text-white px-4 py-2 rounded">
-                    Checkout
-                  </Button>
+                <Button className="bg-secondary text-white px-4 py-2 rounded">
+                  Checkout
+                </Button>
                 </Link>
+                
               </div>
             </div>
           </div>

@@ -1,12 +1,12 @@
 // components/BannerSlider.tsx
 "use client";
 
+import Slider from "react-slick";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import bag1 from "@/public/products/BAG1.jpeg";
 import bag2 from "@/public/products/BAG2.jpeg";
 import bag3 from "@/public/products/BAG3.jpeg";
-import { Carousel } from "./carousel-user";
 
 const slides = [
   {
@@ -38,7 +38,7 @@ const BannerSlider = () => {
     infinite: true,
     speed: 800,
     autoplay: true,
-    autoplaySpeed: 3000,
+    autoplaySpeed: 2000,
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: false,
@@ -46,7 +46,7 @@ const BannerSlider = () => {
 
   return (
     <div className="p-6 md:px-20 md:pt-20">
-      <Carousel {...settings}>
+      <Slider {...settings}>
         {slides.map((slide) => (
           <div key={slide.id} className="relative w-full h-[300px] md:h-[500px] lg:h-[600px]">
             <Image
@@ -66,7 +66,7 @@ const BannerSlider = () => {
             </div>
           </div>
         ))}
-      </Carousel>
+      </Slider>
     </div>
   );
 };
