@@ -223,7 +223,7 @@ export default function Navbar() {
 
           {isAuthenticated && user ? (
             <div className="space-y-4">
-              <p className="font-semibold text-lg">Hi, {user.name}</p>
+              <p className="font-semibold text-lg">{user.name}</p>
               <Link href="/cart" className="w-full block">
                 <Button variant="outline" className="w-full flex items-center justify-center gap-2">
                   <ShoppingCart size={16}/> View Cart
