@@ -13,6 +13,7 @@ export type AuthenticatedUser = {
     id: number;
     name: string;
     email: string;
+    phone: string;
   };
   roles: string[]; // Contoh: ['admin', 'editor']
 };

@@ -105,12 +105,14 @@ export default function HomePage() {
             This elegant camera bag is crafted from high-quality genuine
             leather, offering durability, style, and practical organization.
           </p>
-          <Button
-            size="lg"
-            className="bg-secondary text-white font-bold hover:opacity-90"
-          >
-            Shop Now
-          </Button>
+          <Link href="/collections">
+            <Button
+              size="lg"
+              className="bg-secondary text-white font-bold hover:opacity-90"
+            >
+              Shop Now
+            </Button>
+          </Link>
         </motion.div>
       </section>
       <BannerSlider />

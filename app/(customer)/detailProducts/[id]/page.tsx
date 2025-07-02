@@ -219,11 +219,13 @@ export default function ProductDetailPage() {
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
-
               <div className="flex gap-4 items-center justify-center md:items-start md:justify-start">
+                <Link href="/checkout">
                 <Button className="bg-secondary text-white px-4 py-2 rounded">
                   Checkout
                 </Button>
+                </Link>
+                
               </div>
             </div>
           </div>
