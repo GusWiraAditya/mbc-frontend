@@ -25,8 +25,6 @@ import {
 import bgImage from "@/public/background/background.jpeg";
 import Link from "next/link";
 import BannerSlider from "@/components/ui/banner-slider";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 
 // Animation variant untuk setiap item (tetap sama)
 const itemVariants: Variants = {

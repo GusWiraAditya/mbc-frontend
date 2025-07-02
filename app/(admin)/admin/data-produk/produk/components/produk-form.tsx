@@ -260,7 +260,9 @@ export function ProductForm({
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label className="mb-2" htmlFor="product_name">Nama Produk</Label>
+              <Label className="mb-2" htmlFor="product_name">
+                Nama Produk
+              </Label>
               <Input id="product_name" {...form.register("product_name")} />
               {form.formState.errors.product_name && (
                 <p className="text-sm text-red-500 mt-1">
@@ -269,8 +271,10 @@ export function ProductForm({
               )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div >
-                <Label className="mb-2" htmlFor="category_id">Kategori</Label>
+              <div>
+                <Label className="mb-2" htmlFor="category_id">
+                  Kategori
+                </Label>
                 <Controller
                   name="category_id"
                   control={form.control}
@@ -281,7 +285,7 @@ export function ProductForm({
                       disabled={isSubmitting}
                     >
                       <SelectTrigger id="category_id">
-                        <SelectValue placeholder="Pilih kategori..."/>
+                        <SelectValue placeholder="Pilih kategori..." />
                       </SelectTrigger>
                       <SelectContent>
                         {masterData.categories.map((cat) => (
@@ -300,7 +304,9 @@ export function ProductForm({
                 )}
               </div>
               <div>
-                <Label className="mb-2" htmlFor="gender">Target Gender</Label>
+                <Label className="mb-2" htmlFor="gender">
+                  Target Gender
+                </Label>
                 <Controller
                   name="gender"
                   control={form.control}
@@ -311,7 +317,10 @@ export function ProductForm({
                       disabled={isSubmitting}
                     >
                       <SelectTrigger id="gender">
-                        <SelectValue placeholder="Pilih gender..."  className="w-full"/>
+                        <SelectValue
+                          placeholder="Pilih gender..."
+                          className="w-full"
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="unisex">Unisex</SelectItem>
@@ -330,12 +339,15 @@ export function ProductForm({
             </div>
 
             <div>
-              <Label className="mb-2" htmlFor="description">Deskripsi Produk</Label>
+              <Label className="mb-2" htmlFor="description">
+                Deskripsi Produk
+              </Label>
               <Textarea
                 id="description"
                 {...form.register("description")}
                 placeholder="Jelaskan detail produk, bahan, keunggulan, dll."
                 rows={4}
+                className="max-h-40 overflow-y-auto resize-none"
               />
               {form.formState.errors.description && (
                 <p className="text-sm text-red-500 mt-1">
@@ -490,12 +502,10 @@ export function ProductForm({
                         </div>
                         <div>
                           <Controller
-                        
                             name={`variants.${index}.material_id`}
                             control={form.control}
                             render={({ field }) => (
                               <Select
-                              
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
                               >
