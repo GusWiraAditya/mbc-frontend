@@ -1,165 +1,49 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-  LayoutDashboard,
-  ShoppingBag
-} from "lucide-react"
+import * as React from "react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavPengguna } from "@/components/nav-pengguna"
-import { NavLaporan } from "@/components/nav-laporan"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+// REVISI: Mengimpor data dari file terpisah
+import { sidebarData } from "@/lib/sidebar-data";
+import { NavData } from "@/components/nav-data";
+import { NavDashboard } from "@/components/nav-dashboard";
+import { NavPengguna } from "@/components/nav-pengguna";
+import { NavLaporan } from "@/components/nav-laporan";
+import { NavUser } from "@/components/nav-user";
+
+// import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { useAuthStore } from "@/lib/store";
 
-// This is sample data.
-const data = {
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+  const { isAuthenticated } = useAuthStore();
 
-   projects: [
-    {
-      name: "Dashboard",
-      url: "#",
-      icon: LayoutDashboard,
-      // isActive: true,
-      
-    },
-  ],
-  pengguna: [
-    {
-      name: "Data Admin",
-      url: "#",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "Data Pelanggan",
-      url: "#",
-      icon: LayoutDashboard,
-    },
-  ],
-
-  navMain: [
-    {
-      title: "Data Produk",
-      url: "#",
-      icon: ShoppingBag,
-      // isActive: true,
-      items: [
-        {
-          title: "Kategori",
-          url: "#",
-        },
-        {
-          title: "Produk",
-          url: "#",
-        },
-        {
-          title: "Voucher",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Data Pesanan",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Pembayaran",
-          url: "#",
-        },
-        {
-          title: "Pengemasan",
-          url: "#",
-        },
-        {
-          title: "Pengiriman",
-          url: "#",
-        },
-        {
-          title: "Terkirim",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  laporan: [
-    {
-      name: "Penjualan",
-      url: "#",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "Produk Terlaris",
-      url: "#",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "Stok",
-      url: "#",
-      icon: LayoutDashboard,
-    },
-  ],
-}
-
-export function AppSidebar({
-  user,
-  ...props
-}: { user?: { name: string; email: string; avatar?: string } } & React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
-      </SidebarHeader>
-      <SidebarContent>
-        <NavProjects projects={data.projects} />
-        <NavPengguna projects={data.pengguna} />
-        <NavMain items={data.navMain} />
-        <NavLaporan projects={data.laporan} />
 
+          {/* <span>Admin Dashboard</span> */}
+         {isAuthenticated && <NavUser />}
+      </SidebarHeader>
+      <hr />
+      
+      <SidebarContent>
+        {/* Menggunakan data yang diimpor */}
+        <NavDashboard projects={sidebarData.dashboard} />
+        <NavPengguna projects={sidebarData.pengguna} />
+   
+        <NavData items={sidebarData.navData} />
+        <NavLaporan projects={sidebarData.laporan} />
       </SidebarContent>
-      <SidebarFooter>
-        {user && <NavUser user={{
-          name: user.name,
-          email: user.email,
-          // avatar: user.avatar || "/avatars/default.jpg"
-        }} />}
-      </SidebarFooter>
+      {/* <SidebarFooter>
+       
+      </SidebarFooter> */}
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

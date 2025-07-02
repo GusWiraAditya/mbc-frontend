@@ -1,44 +1,107 @@
-import { create } from 'zustand';
-import { getAuthenticatedUser, logout as apiLogout, AuthenticatedUser } from './auth';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import {
+  getAuthenticatedUser,
+  logout as apiLogout,
+  User,
+  checkAuthStatus,
+} from "./auth";
 
-// Tipe untuk state dan actions di dalam store
 interface AuthState {
-  user: AuthenticatedUser['user'] | null;
+  user: User | null;
   isAuthenticated: boolean;
+  isAuthLoading: boolean;
+  isInitialized: boolean;
   fetchUser: () => Promise<void>;
   logout: () => Promise<void>;
+  initialize: () => Promise<void>;
+  reset: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
-  
-  /**
-   * Mengambil data user yang sedang login dan memperbarui state.
-   */
-  fetchUser: async () => {
+  isAuthLoading: false,
+  isInitialized: false,
+
+  initialize: async () => {
+    if (get().isInitialized) return;
+
+    set({ isAuthLoading: true });
+
     try {
-      const { user } = await getAuthenticatedUser();
-      set({ user, isAuthenticated: true });
+      const { isAuthenticated, user } = await checkAuthStatus();
+
+      if (isAuthenticated && user) {
+        const userWithRoles = { ...user.user, roles: user.roles };
+        set({
+          user: userWithRoles,
+          isAuthenticated: true,
+          isAuthLoading: false,
+          isInitialized: true,
+        });
+      } else {
+        set({
+          user: null,
+          isAuthenticated: false,
+          isAuthLoading: false,
+          isInitialized: true,
+        });
+      }
     } catch (error) {
-      // REVISI: Hapus console.error di sini.
-      // Kegagalan mengambil user adalah kondisi normal jika belum login.
-      // Cukup atur state ke logout tanpa menampilkan error di konsol.
-      // console.error("No authenticated user found."); // <-- HAPUS ATAU KOMENTARI BARIS INI
-      
-      set({ user: null, isAuthenticated: false });
+      console.error("Auth initialization failed:", error);
+      set({
+        user: null,
+        isAuthenticated: false,
+        isAuthLoading: false,
+        isInitialized: true,
+      });
     }
   },
 
-  /**
-   * Proses logout, memanggil API dan membersihkan state.
-   */
+  fetchUser: async () => {
+    set({ isAuthLoading: true });
+
+    try {
+      const authenticatedData = await getAuthenticatedUser();
+      const userWithRoles = {
+        ...authenticatedData.user,
+        roles: authenticatedData.roles,
+      };
+      set({
+        user: userWithRoles,
+        isAuthenticated: true,
+        isAuthLoading: false,
+      });
+    } catch (error) {
+      console.error("Fetch user failed:", error);
+      set({
+        user: null,
+        isAuthenticated: false,
+        isAuthLoading: false,
+      });
+      throw error;
+    }
+  },
+
+  // Ini adalah logika logout yang benar dan andal dari Canvas Anda.
   logout: async () => {
     try {
       await apiLogout();
-      set({ user: null, isAuthenticated: false });
     } catch (error) {
-      console.error("Logout failed in store:", error);
+      console.error("Logout API call failed, but proceeding with client-side state clearing.", error);
+    } finally {
+      // Hanya reset state. Komponen yang memanggil akan menangani redirect.
+      set({ user: null, isAuthenticated: false, isAuthLoading: false, isInitialized: false });
     }
+  },
+
+  reset: () => {
+    set({
+      user: null,
+      isAuthenticated: false,
+      isAuthLoading: false,
+      isInitialized: false,
+    });
   },
 }));

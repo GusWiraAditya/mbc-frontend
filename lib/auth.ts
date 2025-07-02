@@ -1,92 +1,104 @@
-import api from './api'
+import api from './api';
 
-/**
- * Tipe data untuk kredensial login.
- */
 export type LoginCredentials = {
-  email: string
-  password: string
-}
-
-export type AuthenticatedUser = {
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-  };
-  roles: string[]; // Contoh: ['admin', 'editor']
+  email: string;
+  password: string;
 };
 
-/**
- * Mengambil cookie CSRF dari Laravel Sanctum.
- * Wajib sebelum request POST/PUT/DELETE agar tidak gagal CSRF.
- */
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  avatar?: string;
+  roles?: string[];
+}
+
+export interface AuthenticatedUser {
+  user: User;
+  roles: string[];
+}
+
 export const getCsrfCookie = async (): Promise<void> => {
   try {
-    await api.get('/sanctum/csrf-cookie')
+    await api.get('/sanctum/csrf-cookie');
   } catch (error) {
-    console.error('Gagal mengambil CSRF cookie:', error)
-    throw error
+    // console.error('CSRF cookie fetch failed:', error);
+    throw error;
   }
-}
+};
 
-/**
- * Proses login untuk customer.
- * @param credentials Email dan password customer
- * @returns Data user dari response Laravel
- */
-export const loginCustomer = async (credentials: LoginCredentials): Promise<any> => {
+export const loginAdmin = async (credentials: LoginCredentials): Promise<AuthenticatedUser> => {
   try {
-    await getCsrfCookie()
-    const response = await api.post('/login', credentials)
-    return response.data
+    await getCsrfCookie();
+    await api.post('/login-admin', credentials);
+    
+    // Immediately fetch user data after successful login
+    const userResponse = await api.get<AuthenticatedUser>('/user');
+    return userResponse.data;
   } catch (error) {
-    console.error('Login customer gagal:', error)
-    throw error
+    // console.error('Admin login failed:', error);
+    throw error;
   }
-}
+};
 
-/**
- * Proses login untuk admin.
- * @param credentials Email dan password admin
- * @returns Data user dari response Laravel
- */
-export const loginAdmin = async (credentials: LoginCredentials): Promise<any> => {
+export const loginCustomer = async (credentials: LoginCredentials): Promise<AuthenticatedUser> => {
   try {
-    await getCsrfCookie()
-    const response = await api.post('/login-admin', credentials)
-    return response.data
+    await getCsrfCookie();
+    await api.post('/login', credentials);
+
+    // Immediately fetch user data after successful login
+    const userResponse = await api.get<AuthenticatedUser>('/user');
+    return userResponse.data;
   } catch (error) {
-    console.error('Login admin gagal:', error)
-    throw error
+    console.error('Customer login failed:', error);
+    throw error;
   }
-}
+};
 
-export const logout = async () => {
+export const registerCustomer = async (data: any): Promise<AuthenticatedUser> => {
   try {
-    await api.post('http://localhost:8000/logout', {}, { withCredentials: true });
-
-    // Kosongkan store/user context
-    // Contoh:
-    // setUser(null); // dari Zustand atau Context
+    await getCsrfCookie();
+    // Backend Anda mengharapkan 'password_confirmation', jadi kita kirimkan
+    const response = await api.post('/register', data);
+    // Backend Anda langsung me-login user setelah registrasi,
+    // jadi kita kembalikan data user tersebut.
+    return response.data;
   } catch (error) {
-    console.error('Logout gagal:', error);
+    throw error;
   }
 };
 
 /**
- * Mengambil data user yang sedang login dari backend.
- * Mengembalikan data user beserta roles-nya.
+ * REVISI: Fungsi logout sekarang hanya memanggil API.
+ * Ia tidak lagi melakukan pengalihan (window.location.href).
+ * Tugas pengalihan akan ditangani oleh store.
  */
+export const logout = async (): Promise<void> => {
+  try {
+    await api.post('/logout');
+  } catch (error) {
+    console.error("Logout API call failed:", error);
+    throw error;
+  }
+};
+
 export const getAuthenticatedUser = async (): Promise<AuthenticatedUser> => {
   try {
-    const response = await api.get<AuthenticatedUser>('/user'); 
+    const response = await api.get<AuthenticatedUser>('/user');
     return response.data;
   } catch (error) {
-    // REVISI: Hapus console.error di sini.
-    // Biarkan store yang memutuskan cara menangani error ini.
-    // console.error('Gagal mengambil data user:', error); // <-- HAPUS ATAU KOMENTARI BARIS INI
+    // console.error('Get authenticated user failed:', error);
+
     throw error;
+  }
+};
+
+// New: Check if user is authenticated without throwing
+export const checkAuthStatus = async (): Promise<{ isAuthenticated: boolean; user?: AuthenticatedUser }> => {
+  try {
+    const userData = await getAuthenticatedUser();
+    return { isAuthenticated: true, user: userData };
+  } catch (error) {
+    return { isAuthenticated: false };
   }
 };

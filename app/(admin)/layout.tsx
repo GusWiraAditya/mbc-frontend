@@ -1,62 +1,85 @@
-// app/layout.tsx
+// --- File 2: app/(admin)/layout.tsx (REVISI FINAL - Menjadi Penjaga Utama) ---
+"use client";
 
-// import "./globals.css"
-// import { Toaster } from "sonner"
-// import type { Metadata } from "next"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import * as React from "react";
 
-// export const metadata: Metadata = {
-//   title: "Made By Can",
-//   description: "E-Commerce Penjualan Tas Lokal",
-// }
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/lib/store";
+import logoPrim from "@/public/logo/mbc-primary.png";
+import Image from "next/image";
 
-// export default function RootLayout({ children }: { children: React.ReactNode }) {
-//   return (
-//     <html lang="id">
-//       <body>
-//         {children}
-//       </body>
-//     </html>
-//   )
-// }
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-// import "@./globals.css";
+// Komponen UI untuk ditampilkan saat otentikasi sedang diverifikasi.
+const AdminLoadingScreen = () => (
+  <div className="flex h-screen w-full items-center justify-center bg-gray-100">
+    <div className="flex flex-col items-center gap-2">
+      <Image
+        src={logoPrim}
+        alt="MBC Logo"
+        width={120}
+        height={120}
+        className="mb-2"
+        priority
+      />
+      <div
+        className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
+        role="status"
+        aria-label="loading"
+      />
+      {/* <p className="text-sm text-muted-foreground">Verifying authentication...</p> */}
+    </div>
+  </div>
+);
 
-// Asumsikan path komponen ini sudah benar menggunakan alias
-import Navbar from "@/components/user/Navbar";
-import Footer from "@/components/user/Footer";
-// import { Toaster } from "@/components/ui/sonner";
-
-// Konfigurasi font default dari Google Fonts
-const inter = Inter({ subsets: ["latin"] });
-
-// Metadata untuk SEO, akan muncul di tab browser
-export const metadata: Metadata = {
-  title: "MadeByCan | Handcrafted Leather Goods",
-  description: "High-quality genuine leather products, handcrafted with passion.",
-};
-
+/**
+ * Ini adalah implementasi BEST PRACTICE.
+ * AdminLayout sekarang bertindak sebagai "penjaga gerbang" utama untuk seluruh
+ * area admin. Ia memeriksa status autentikasi SEBELUM merender UI admin.
+ */
 export default function AdminLayout({
   children,
-}:{
+}: {
   children: React.ReactNode;
 }) {
-  return (
-    <html lang="id">
-      <body className={inter.className}>
-        {/* <Toaster richColors position="top-center" /> */}
+  const { isAuthenticated, user, isAuthLoading } = useAuthStore();
+  const router = useRouter();
 
-        {/* Navbar akan selalu tampil di bagian atas semua halaman */}
-        {/* <Navbar /> */}
-        
-        {/* 'children' adalah tempat di mana halaman (seperti HomePage) akan dirender */}
-        {/* <main> */}
-          {children}
-        {/* </main> */}
-        
-        {/* Footer akan selalu tampil di bagian bawah semua halaman */}
-        {/* <Footer /> */}
-      </body>
-    </html>
-  );
+  useEffect(() => {
+    // 1. Jangan lakukan apa-apa selagi proses pengecekan awal berjalan.
+    if (isAuthLoading) {
+      return;
+    }
+
+    // 2. Setelah selesai, jika user tidak sah (tidak login ATAU bukan admin), redirect.
+    if (
+      !isAuthenticated ||
+      !user?.roles?.includes("admin") ||
+      !user?.roles?.includes("super-admin")
+    ) {
+      router.push("/auth/login-admin");
+    }
+  }, [isAuthenticated, user, isAuthLoading, router]);
+
+  // 3. Selama pengecekan auth awal, tampilkan UI loading layar penuh.
+  if (isAuthLoading) {
+    return <AdminLoadingScreen />;
+  }
+
+  // 4. Hanya render layout admin lengkap jika user adalah admin yang sah.
+  if (
+    isAuthenticated &&
+    (user?.roles?.includes("admin") || user?.roles?.includes("super-admin"))
+  ) {
+    return (
+      <SidebarProvider>
+        <AppSidebar />
+        {children}
+      </SidebarProvider>
+    );
+  }
+
+  // 5. Jika tidak, jangan render apa-apa selagi proses redirect berjalan.
+  return null;
 }

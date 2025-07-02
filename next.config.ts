@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/vi/**',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000', // Sesuaikan port jika berbeda
+        pathname: '/storage/**', // Izinkan semua gambar dari folder storage
+      },
     ],
   },
 };

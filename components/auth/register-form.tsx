@@ -5,46 +5,48 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-import { loginSchema } from "@/lib/validation";
-import { loginCustomer } from "@/lib/auth";
+import { registerSchema } from "@/lib/validation";
+import { registerCustomer } from "@/lib/auth";
 import { useAuthStore } from "@/lib/store";
 import { showError, showSuccess } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-// REVISI: Mengimpor ikon mata
 import { Eye, EyeOff } from "lucide-react";
 import { FaGoogle } from "react-icons/fa";
-import Link from "next/link";
 
-type Inputs = z.infer<typeof loginSchema>;
+// Menggunakan skema validasi registrasi yang baru
+type Inputs = z.infer<typeof registerSchema>;
 
-export default function CustomerLoginForm() {
-  // REVISI: Tambahkan 'watch' dari useForm untuk memantau input
+export default function CustomerRegisterForm() {
   const {
     register,
     handleSubmit,
-    watch, // <-- Tambahkan ini
+    watch,
     formState: { errors },
   } = useForm<Inputs>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(registerSchema),
   });
 
-  // Pantau nilai dari input password
   const passwordValue = watch("password");
+  const confirmPasswordValue = watch("password_confirmation");
 
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // REVISI: State untuk mengontrol visibilitas password
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const onSubmit = async (data: Inputs) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
     try {
-      const userData = await loginCustomer(data);
+      // Panggil fungsi register yang baru
+      const userData = await registerCustomer(data);
+
+      // Backend langsung me-login user, jadi kita update store di frontend
       const userWithRoles = { ...userData.user, roles: userData.roles };
       useAuthStore.setState({
         user: userWithRoles,
@@ -53,10 +55,20 @@ export default function CustomerLoginForm() {
         isInitialized: true,
       });
 
-      showSuccess("Login berhasil");
-      router.replace("/");
+      showSuccess("Registrasi berhasil! Selamat datang.");
+      router.replace("/"); // Arahkan ke homepage setelah berhasil
     } catch (err: any) {
-      showError(err?.response?.data?.message || "Login gagal");
+      // Menampilkan pesan error dari backend jika ada
+      const serverErrors = err?.response?.data?.errors;
+      if (serverErrors) {
+        Object.values(serverErrors)
+          .flat()
+          .forEach((error: any) => showError(error));
+      } else {
+        showError(
+          err?.response?.data?.message || "Registrasi gagal, silakan coba lagi."
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -65,6 +77,22 @@ export default function CustomerLoginForm() {
   return (
     <div className="space-y-5">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <div>
+          <Label htmlFor="name" className="mb-3 block">
+            Full Name
+          </Label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="John Doe"
+            disabled={isSubmitting}
+            {...register("name")}
+          />
+          {errors.name && (
+            <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
+          )}
+        </div>
+
         <div>
           <Label htmlFor="email" className="mb-3 block">
             Email
@@ -82,39 +110,24 @@ export default function CustomerLoginForm() {
           )}
         </div>
 
-        {/* REVISI: Bagian input password sekarang memiliki ikon mata */}
         <div>
-          <div className="flex items-center mb-3">
-            <Label htmlFor="password" className="block">
-              Password
-            </Label>
-            <Link
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </Link>
-          </div>
-
+          <Label htmlFor="password" className="mb-3 block">
+            Password
+          </Label>
           <div className="relative">
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              autoComplete="current-password"
+              placeholder="Minimum 8 characters"
               disabled={isSubmitting}
-              placeholder="********"
               className="pr-10"
               {...register("password")}
             />
-            {/* Ikon mata hanya akan dirender jika ada isi di dalam input password */}
             {passwordValue && (
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
-                aria-label={
-                  showPassword ? "Sembunyikan password" : "Tampilkan password"
-                }
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -127,14 +140,44 @@ export default function CustomerLoginForm() {
           )}
         </div>
 
+        <div>
+          <Label htmlFor="password_confirmation" className="mb-3 block">
+            Confirm Password
+          </Label>
+          <div className="relative">
+            <Input
+              id="password_confirmation"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Re-type your password"
+              disabled={isSubmitting}
+              className="pr-10"
+              {...register("password_confirmation")}
+            />
+            {confirmPasswordValue && (
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            )}
+          </div>
+          {errors.password_confirmation && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.password_confirmation.message}
+            </p>
+          )}
+        </div>
+
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? (
             <div className="flex items-center justify-center gap-2">
               <div className="animate-spin border-2 border-solid border-t-transparent rounded-full h-4 w-4 border-white"></div>
-              <span>Memproses...</span>
+              <span>Processing...</span>
             </div>
           ) : (
-            "Login"
+            "Create Account"
           )}
         </Button>
 
@@ -148,20 +191,19 @@ export default function CustomerLoginForm() {
       <Link href="http://localhost:8000/auth/google/redirect">
         <Button variant="outline" className="w-full mb-5">
           <FaGoogle />
-          Login with Google
+          Sign up with Google
         </Button>
       </Link>
 
       <div className="text-center text-sm">
-        Don&apos;t have an account?{" "}
+        Already have an account?{" "}
         <Link
-          href="/auth/register"
+          href="/auth/login"
           className="underline underline-offset-4 text-primary font-semibold"
         >
-          Sign up
+          Log in
         </Link>
       </div>
-
     </div>
   );
 }
