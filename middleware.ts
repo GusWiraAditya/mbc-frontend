@@ -60,8 +60,9 @@ export async function middleware(request: NextRequest) {
   // Identifikasi jenis halaman yang sedang diakses untuk mempermudah logika.
   const isAdminPage = pathname.startsWith('/admin');
   const isCustomerLoginPage = pathname.startsWith('/auth/login');
+  const isCustomerRegisterPage = pathname.startsWith('/auth/register');
   const isAdminLoginPage = pathname.startsWith('/auth/login-admin');
-  const isAnyLoginPage = isCustomerLoginPage || isAdminLoginPage;
+  const isAnyLoginPage = isCustomerLoginPage || isAdminLoginPage || isCustomerRegisterPage;
 
   // --- LOGIKA UTAMA ---
 
@@ -119,5 +120,6 @@ export const config = {
     '/admin/:path*', 
     '/auth/login-admin', 
     '/auth/login',
+    '/auth/register',
   ],
 };

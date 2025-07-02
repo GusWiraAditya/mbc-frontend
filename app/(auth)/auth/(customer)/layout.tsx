@@ -54,7 +54,7 @@ export default function AuthLayout({
           animate={{ opacity: 1, y: 0 }}
           initial={{ opacity: 0, y: 50 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="w-full max-w-md px-8 py-8 shadow-2xl rounded-lg bg-neutral-50"
+          className="w-full max-w-md px-8 py-8 shadow-2xl rounded-lg bg-card"
         >
           {children}
         </motion.div>

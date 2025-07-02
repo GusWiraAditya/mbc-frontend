@@ -179,7 +179,7 @@ export default function Navbar() {
       {/* Mobile Drawer & Overlay */}
       <>
         <div
-            className={`fixed inset-0 bg-black/60 z-30 transition-opacity duration-300 ${isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+            className={`fixed inset-0 bg-black/60 z-50 transition-opacity duration-300 ${isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
             onClick={toggleMenu}
         />
         <div

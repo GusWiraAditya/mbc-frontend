@@ -1,5 +1,7 @@
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
+import AuthStatusNotifier from "@/components/auth/auth-status-notifier"; // <-- Impor komponen baru
+
 
 /**
  * Layout ini khusus untuk halaman-halaman yang dapat diakses oleh customer.
@@ -12,6 +14,7 @@ export default function CustomerLayout({
 }) {
   return (
     <div className="flex flex-col min-h-screen bg-neutral-50">
+      <AuthStatusNotifier />
       <Navbar />
       <main className="flex-grow">
         {/* {children} akan menjadi halaman seperti /collections, /about, dll. */}

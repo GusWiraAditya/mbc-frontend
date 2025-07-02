@@ -4,13 +4,13 @@ import * as React from "react";
 
 // REVISI: Mengimpor data dari file terpisah
 import { sidebarData } from "@/lib/sidebar-data";
-
-import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
+import { NavData } from "@/components/nav-data";
+import { NavDashboard } from "@/components/nav-dashboard";
 import { NavPengguna } from "@/components/nav-pengguna";
 import { NavLaporan } from "@/components/nav-laporan";
 import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
+
+// import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -26,19 +26,23 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        {/* Menggunakan data yang diimpor */}
-        <TeamSwitcher teams={sidebarData.teams} />
+
+          {/* <span>Admin Dashboard</span> */}
+         {isAuthenticated && <NavUser />}
       </SidebarHeader>
+      <hr />
+      
       <SidebarContent>
         {/* Menggunakan data yang diimpor */}
-        <NavProjects projects={sidebarData.projects} />
+        <NavDashboard projects={sidebarData.dashboard} />
         <NavPengguna projects={sidebarData.pengguna} />
-        <NavMain items={sidebarData.navMain} />
+   
+        <NavData items={sidebarData.navData} />
         <NavLaporan projects={sidebarData.laporan} />
       </SidebarContent>
-      <SidebarFooter>
-        {isAuthenticated && <NavUser />}
-      </SidebarFooter>
+      {/* <SidebarFooter>
+       
+      </SidebarFooter> */}
       <SidebarRail />
     </Sidebar>
   );

@@ -55,6 +55,19 @@ export const loginCustomer = async (credentials: LoginCredentials): Promise<Auth
   }
 };
 
+export const registerCustomer = async (data: any): Promise<AuthenticatedUser> => {
+  try {
+    await getCsrfCookie();
+    // Backend Anda mengharapkan 'password_confirmation', jadi kita kirimkan
+    const response = await api.post('/register', data);
+    // Backend Anda langsung me-login user setelah registrasi,
+    // jadi kita kembalikan data user tersebut.
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 /**
  * REVISI: Fungsi logout sekarang hanya memanggil API.
  * Ia tidak lagi melakukan pengalihan (window.location.href).

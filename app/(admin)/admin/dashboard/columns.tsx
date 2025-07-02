@@ -1,31 +1,21 @@
-import * as React from "react"
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+"use client"
 
+import { ColumnDef } from "@tanstack/react-table"
+import { MoreHorizontal, ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
 
-
+// Ini adalah tipe data untuk satu baris di tabel Anda.
+// Anda bisa menyesuaikannya dengan data produk Anda nanti.
 export type Payment = {
   id: string
   amount: number
@@ -59,9 +49,17 @@ export const columns: ColumnDef<Payment>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
-    ),
+    cell: ({ row }) => {
+        const status = row.getValue("status") as string;
+        const variant = {
+            pending: "secondary",
+            processing: "default",
+            success: "success",
+            failed: "destructive",
+        }[status] ?? "default";
+
+        return <Badge variant={variant as any}>{status}</Badge>
+    }
   },
   {
     accessorKey: "email",
@@ -72,22 +70,19 @@ export const columns: ColumnDef<Payment>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Email
-          <ArrowUpDown />
+          <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
   },
   {
     accessorKey: "amount",
     header: () => <div className="text-right">Amount</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("amount"))
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
+      const formatted = new Intl.NumberFormat("id-ID", {
         style: "currency",
-        currency: "USD",
+        currency: "IDR",
       }).format(amount)
 
       return <div className="text-right font-medium">{formatted}</div>
@@ -95,16 +90,14 @@ export const columns: ColumnDef<Payment>[] = [
   },
   {
     id: "actions",
-    enableHiding: false,
     cell: ({ row }) => {
       const payment = row.original
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
+              <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
