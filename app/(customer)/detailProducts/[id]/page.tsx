@@ -173,7 +173,6 @@ export default function ProductDetailPage() {
               </div>
             </div>
           </div>
-
           <div className="flex-1 space-y-4">
             <div className="">
               <h1 className="text-4xl font-bold text-primary mb-2">
