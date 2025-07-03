@@ -49,7 +49,7 @@ export type ProductVariant = {
   id: number;
   price: number;
   stock: number;
-  rating: number | null;
+  sku: string;
   color: Color;
   size: Size;
   material: Material;
@@ -148,7 +148,6 @@ export const getProductColumns = ({ onEdit, onDelete }: ColumnsProps): ColumnDef
       )
     },
   },
-   // --- REVISI: TAMBAHKAN KOLOM STATUS DI SINI ---
   {
     accessorKey: "is_active",
     header: ({ column }) => {

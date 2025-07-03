@@ -3,7 +3,7 @@
 "use client";
 
 // --- IMPORTS ---
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, Controller, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect, ReactNode } from "react";
 import {
@@ -130,7 +130,7 @@ export function ProductForm({
           material_id: String(v.material.id),
           price: v.price,
           stock: v.stock,
-          rating: v.rating,
+          sku: v.sku || "",
           existingImages: v.images || [],
           newImageFiles: [],
           deletedImageIds: [],
@@ -182,6 +182,41 @@ export function ProductForm({
     }
   };
 
+   const watchedProductName = useWatch({ control: form.control, name: "product_name" });
+  const watchedVariants = useWatch({ control: form.control, name: "variants" });
+
+  useEffect(() => {
+    watchedVariants.forEach((variant, index) => {
+      // Hanya generate jika field SKU kosong
+      if (!form.getValues(`variants.${index}.sku`)) {
+        const colorId = variant.color_id;
+        const sizeId = variant.size_id;
+        const materialId = variant.material_id;
+
+        if (watchedProductName && colorId && sizeId && materialId) {
+          // 1. Ganti spasi dengan '-' dan buat uppercase untuk semua bagian teks
+          const productPart = watchedProductName.toUpperCase().replace(/\s+/g, '-');
+          const colorName = masterData.colors.find(c => String(c.id) === colorId)?.name.toUpperCase().replace(/\s+/g, '-') || '';
+          const sizeCode = masterData.sizes.find(s => String(s.id) === sizeId)?.code?.toUpperCase() || '';
+          const materialName = masterData.materials.find(m => String(m.id) === materialId)?.name.toUpperCase().replace(/\s+/g, '-') || '';
+          
+          // 2. Gabungkan semua bagian
+          const generatedSku = `${productPart}-${colorName}-${sizeCode}-${materialName}`;
+          
+          // 3. Bersihkan tanda hubung berlebih
+          const finalSku = generatedSku.replace(/-+/g, '-').replace(/^-|-$/g, '');
+
+          form.setValue(`variants.${index}.sku`, finalSku, { shouldValidate: true });
+        }
+      }
+    });
+  }, [
+    watchedProductName, 
+    JSON.stringify(watchedVariants.map(v => ({c: v.color_id, s: v.size_id, m: v.material_id}))),
+    masterData, 
+    form
+  ]);
+  // ------------------------------------
   const onSubmit = async (data: ProductFormValues) => {
     setIsSubmitting(true);
     try {
@@ -202,8 +237,10 @@ export function ProductForm({
         formData.append(`variants[${index}][material_id]`, variant.material_id);
         formData.append(`variants[${index}][price]`, String(variant.price));
         formData.append(`variants[${index}][stock]`, String(variant.stock));
-        if (variant.rating != null)
-          formData.append(`variants[${index}][rating]`, String(variant.rating));
+        // Ganti 'rating' dengan 'sku'
+        if (variant.sku) {
+          formData.append(`variants[${index}][sku]`, variant.sku);
+        }
 
         variant.newImageFiles.forEach((file) =>
           formData.append(`variants[${index}][images][]`, file)
@@ -252,7 +289,10 @@ export function ProductForm({
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="flex flex-col flex-1 min-h-0 sm:w-3xl md:w-6xl"
+    >
       <div className="max-h-[75vh] overflow-y-auto pr-4 -mr-4 space-y-6">
         <Card>
           <CardHeader>
@@ -347,7 +387,6 @@ export function ProductForm({
                 {...form.register("description")}
                 placeholder="Jelaskan detail produk, bahan, keunggulan, dll."
                 rows={4}
-                className="max-h-40 overflow-y-auto resize-none"
               />
               {form.formState.errors.description && (
                 <p className="text-sm text-red-500 mt-1">
@@ -402,7 +441,7 @@ export function ProductForm({
                     material_id: "",
                     price: 0,
                     stock: 0,
-                    rating: null,
+                    sku: "",
                     existingImages: [],
                     newImageFiles: [],
                     deletedImageIds: [],
@@ -564,17 +603,20 @@ export function ProductForm({
                             </p>
                           )}
                         </div>
+                        {/* --- REVISI UTAMA PADA TAMPILAN --- */}
                         <div>
-                          <Label className="mb-2">Rating (0-5)</Label>
+                          <Label className="mb-2">
+                            SKU <span className="text-destructive">*</span>
+                          </Label>
                           <Input
-                            type="number"
-                            step="0.1"
-                            {...form.register(`variants.${index}.rating`)}
+                            type="text"
+                            placeholder="Terisi otomatis..."
+                            {...form.register(`variants.${index}.sku`)}
                           />
-                          {form.formState.errors.variants?.[index]?.rating && (
+                          {form.formState.errors.variants?.[index]?.sku && (
                             <p className="text-sm text-red-500 mt-1">
                               {
-                                form.formState.errors.variants[index].rating
+                                form.formState.errors.variants[index].sku
                                   .message
                               }
                             </p>

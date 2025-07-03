@@ -76,7 +76,7 @@ export const productVariantFormSchema = z.object({
   // REVISI: Harga minimal 1 agar tidak bisa 0 atau kosong
   price: z.coerce.number({ invalid_type_error: "Harga harus angka." }).min(1, "Harga harus diisi."),
   stock: z.coerce.number({ invalid_type_error: "Stok harus berupa angka." }).int("Stok harus bilangan bulat.").min(0, "Stok tidak boleh negatif."),
-  rating: z.coerce.number().min(0, "Rating minimal 0.").max(5, "Rating maksimal 5.").nullable().optional(),
+  sku: z.string().min(1, { message: "SKU harus diisi." }),
   
   // Properti ini hanya untuk state di frontend
   existingImages: z.array(z.any()),

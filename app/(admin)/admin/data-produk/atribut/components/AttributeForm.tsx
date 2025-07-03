@@ -70,7 +70,7 @@ export function AttributeForm({ attributeName, initialData, onSubmit, onClose }:
       {attributeName === 'Size' && (
         <>
          <div>
-          <Label className="mb-2" htmlFor="code">Kode (S, M, L)</Label>
+          <Label className="mb-2" htmlFor="code">Kode (S, M, L, XL)</Label>
           <Input id="code" {...register("code")} disabled={isSubmitting} />
          
         </div>

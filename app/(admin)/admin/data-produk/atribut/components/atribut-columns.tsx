@@ -85,10 +85,10 @@ export const getSizeColumns = (handlers: ColumnHandlers): ColumnDef<Attribute>[]
     accessorKey: "code", 
     header: createSortableHeader("Kode (S, M, L)"),
   },
-  { 
-     accessorKey: "description", 
-    header: "Deskripsi",
-  },
+  // { 
+  //    accessorKey: "description", 
+  //   header: "Deskripsi",
+  // },
   actionColumn(handlers),
 ];
 
@@ -98,9 +98,9 @@ export const getMaterialColumns = (handlers: ColumnHandlers): ColumnDef<Attribut
     accessorKey: "name", 
     header: createSortableHeader("Nama Bahan"),
   },
-  { 
-    accessorKey: "description", 
-    header: "Deskripsi",
-  },
+  // { 
+  //   accessorKey: "description", 
+  //   header: "Deskripsi",
+  // },
   actionColumn(handlers),
 ];
