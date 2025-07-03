@@ -57,26 +57,38 @@ export default function ProfilePage() {
           
             {/* Form */}
             <form className="p-6 space-y-6 border border-gray-200">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                <div>
-                    <label className="block text-sm font-medium text-gray-600">Full Name</label>
+                <div className="flex gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Nama Lengkap</label>
                     <input
                     type="text"
                     value={profile.name}
                     disabled
                     className="mt-1 w-full rounded border-gray-300 shadow-sm"
                     />
+                  </div>
                 </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-600">Username</label>
+                <div className="flex gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Nomor Telepon</label>
                     <input
                     type="text"
-                    value={profile.name.toLowerCase().replace(/\\s/g, '')}
+                    value="#"
                     disabled
                     className="mt-1 w-full rounded border-gray-300 shadow-sm"
                     />
+                  </div>
                 </div>
+                <div className="flex gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">Alamat</label>
+                    <input
+                    type="text"
+                    value="#"
+                    disabled
+                    className="mt-1 w-full rounded border-gray-300 shadow-sm"
+                    />
+                  </div>
                 </div>
 
                 {/* Email & Password Section */}
@@ -91,7 +103,7 @@ export default function ProfilePage() {
                     <button className="text-blue-600 text-sm ml-auto">change</button>
                     </div>
                 </div>
-                <div>
+                {/* <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                     My Password
                     </label>
@@ -100,7 +112,7 @@ export default function ProfilePage() {
                     <span className="text-sm text-gray-700">***************</span>
                     <button className="text-blue-600 text-sm ml-auto">change</button>
                     </div>
-                </div>
+                </div> */}
                 </div>
 
                 {/* Save Button */}
