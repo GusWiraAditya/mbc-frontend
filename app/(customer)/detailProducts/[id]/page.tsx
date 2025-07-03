@@ -73,6 +73,9 @@ export default function ProductDetailPage() {
 
   const sliderRef = useRef<Slider | null>(null);
 
+  const handleAfterChange = (index: number) => {
+  setSelectedIndex(index);
+};
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -128,7 +131,7 @@ export default function ProductDetailPage() {
                       slidesToShow={1}
                       slidesToScroll={1}
                       arrows={false}
-                      afterChange={(index) => setSelectedIndex(index)}
+                      afterChange={handleAfterChange}
                     >
                       {product.thumbnail.map((img, index) => (
                         <div key={index}>
