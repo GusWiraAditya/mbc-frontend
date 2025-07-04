@@ -1,45 +1,42 @@
-"use client"; // Menandakan ini adalah Client Component karena menggunakan state dan event handler
+"use client";
 
-// import "./globals.css"
 import { useEffect, useState } from "react";
-import Image from "next/image"; // Gunakan komponen Image dari Next.js untuk optimasi
-import { motion, Variants } from "framer-motion";
-
-// REVISI: Menggunakan path alias yang benar untuk komponen UI.
-import { Button } from "@/components/ui/button";
-
-// Impor ikon
-import { Play, ChevronDown, ChevronUp } from "lucide-react";
-import { FaStar, FaRegStarHalfStroke, FaRegStar } from "react-icons/fa6";
-
-// REVISI: Menggunakan path alias yang benar untuk data.
-import {
-  categories,
-  productsData,
-  reviews,
-  questions,
-  galleryImages,
-} from "@/lib/data";
-
-// REVISI: Menggunakan path alias yang benar untuk gambar dari folder public.
-import bgImage from "@/public/background/background.jpeg";
+import Image from "next/image";
 import Link from "next/link";
-import BannerSlider from "@/components/ui/banner-slider";
+import { motion, Variants } from "framer-motion";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-// Animation variant untuk setiap item (tetap sama)
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.2,
-      duration: 0.6,
-      ease: "easeOut",
-    },
-  }),
+// Komponen & Ikon
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import BannerSlider from "@/components/ui/banner-slider";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { FaStar, FaRegStarHalfStroke, FaRegStar } from "react-icons/fa6";
+
+// Data & utilitas
+import api from "@/lib/api"; // Asumsi Anda punya file konfigurasi API client
+import { reviews, questions, galleryImages } from "@/lib/data"; // Data statis lain tetap digunakan
+import bgImage from "@/public/background/background.jpeg";
+
+type ProductImage = { id: number; path: string };
+type ProductVariant = { id: number; price: number; images: ProductImage[] };
+
+// Tipe Product sekarang menyertakan min_price dan max_price
+type Product = {
+  id: number;
+  slug: string;
+  product_name: string;
+  min_price: number;
+  max_price: number;
+  variants: ProductVariant[];
+};
+
+type Category = {
+  id: number;
+  slug: string;
+  category_name: string;
+  image: string | null;
 };
 
 // Render rating bintang secara dinamis
@@ -56,16 +53,37 @@ const renderStars = (rating: number) => {
   }
   return stars;
 };
-
-const imageMotion = {
-  whileInView: { opacity: 1, y: 0 },
-  initial: { opacity: 0, y: 50 },
-  transition: { duration: 0.5 },
+// Animation variant untuk setiap item (tetap sama)
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.2,
+      duration: 0.6,
+      ease: "easeOut",
+    },
+  }),
 };
 
+const CategoryCardSkeleton = () => (
+  <div className="w-full h-64 md:h-80 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse" />
+);
+// REVISI: Komponen Skeleton untuk kartu produk
+const ProductCardSkeleton = () => (
+  <div className="w-full h-full space-y-2">
+    <Skeleton className="aspect-[4/3] w-full rounded-lg" />
+    <Skeleton className="h-6 w-3/4" />
+    <Skeleton className="h-5 w-1/2" />
+  </div>
+);
+
 export default function HomePage() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const videoId = "W6bVhPQqrnw"; // ambil dari URL video
+  const [products, setProducts] = useState<Product[]>([]);
+  const [topCategories, setTopCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Satu state loading untuk semua data awal
+  const [error, setError] = useState<string | null>(null);
   // REVISI: State untuk FAQ sekarang menyimpan ID, bukan index.
   const [activeIndex, setActiveIndex] = useState<number | null>(1); // Buka item pertama secara default
 
@@ -73,15 +91,45 @@ export default function HomePage() {
     setActiveIndex((prevId) => (prevId === id ? null : id));
   };
 
+  // ... (state lain seperti activeIndex tidak berubah)
+
+  // REVISI: useEffect untuk mengambil data produk dari API
+  // --- REVISI: useEffect untuk mengambil SEMUA data awal ---
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Ambil data produk dan kategori secara bersamaan (paralel)
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          api.get("/products/featured"),
+          api.get("/categories/top"),
+        ]);
+
+        setProducts(productsResponse.data);
+        setTopCategories(categoriesResponse.data);
+      } catch (err) {
+        // console.error("Gagal mengambil data awal:", err);
+        setError("Gagal memuat data. Silakan coba lagi nanti.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
   useEffect(() => {
     document.body.style.overflowX = "hidden";
     return () => {
       document.body.style.overflowX = "auto";
     };
   }, []);
+  // ... (sisa kode komponen tidak berubah sampai bagian Top Collections)
 
   return (
     <>
+      {/* ... (Section 1: Hero & Section 2: Top Categories tidak berubah) ... */}
       {/* Section 1: Hero */}
       <section
         className="relative h-screen bg-fixed bg-cover bg-center flex items-center px-6 md:px-20"
@@ -116,50 +164,64 @@ export default function HomePage() {
         </motion.div>
       </section>
       <BannerSlider />
-
-      {/* Section 2: Top Categories */}
       <section className="p-6 md:px-20 md:pt-20">
         <motion.h2
           whileInView={{ opacity: 1, y: 0 }}
           initial={{ opacity: 0, y: 100 }}
           transition={{ duration: 0.7 }}
-          className="text-2xl sm:text-3xl font-bold text-primary mb-4 sm:mb-8"
+          className="mb-4 sm:mb-8 text-2xl sm:text-3xl font-bold text-primary"
         >
-          Our Top Categories
+          
+            Our Top Categories
         </motion.h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {/* REVISI: Menggunakan `category.id` untuk `key` */}
-          {categories.map((category, idx) => (
-            <motion.div
-              custom={idx}
-              initial="hidden"
-              whileInView="visible"
-              variants={itemVariants}
-              key={category.id}
-              className="relative w-full h-64 md:h-80 overflow-hidden rounded group cursor-pointer"
-            >
-              <Image
-                src={category.img}
-                alt={category.label}
-                fill
-                style={{ objectFit: "cover" }}
-                className="transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-              <div className="absolute inset-0 bg-[rgba(109,78,46,0.5)] z-10"></div>
-              <div className="absolute inset-0 flex items-center justify-center z-20">
-                <p className="text-white text-xl sm:text-3xl font-semibold text-center px-2">
-                  {category.label}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+          {isLoading ? (
+            // Tampilkan 3 skeleton saat loading
+            <>
+              <CategoryCardSkeleton />
+              <CategoryCardSkeleton />
+              <CategoryCardSkeleton />
+            </>
+          ) : (
+            // Render kategori dari API jika berhasil
+            topCategories.map((category, idx) => {
+              const publicImageUrl = category.image
+                ? `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${category.image}`
+                : "/placeholder.png";
+              return (
+                <motion.div
+                  custom={idx}
+                  initial="hidden"
+                  whileInView="visible"
+                  variants={itemVariants}
+                  key={category.id}
+                  className="relative w-full h-64 md:h-80 overflow-hidden rounded group cursor-pointer"
+                >
+                  <Link href={`/collections/${category.slug}`}>
+                    <Image
+                      src={publicImageUrl}
+                      alt={category.category_name}
+                      fill
+                      style={{ objectFit: "cover" }}
+                      className="transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10"></div>
+                    <div className="absolute bottom-0 left-0 p-6 z-20">
+                      <p className="text-white text-xl sm:text-2xl font-semibold">
+                        {category.category_name}
+                      </p>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })
+          )}
         </div>
       </section>
-
-      {/* Section 3: Top Collections */}
-      <section className="p-6 md:px-20 md:py-10">
+      
+   <section className="p-6 md:px-20 md:py-10">
         <motion.div
           whileInView={{ opacity: 1, y: 0 }}
           initial={{ opacity: 0, y: 100 }}
@@ -169,56 +231,75 @@ export default function HomePage() {
           <h2 className="text-2xl sm:text-3xl font-bold text-primary">
             Our Top Collections
           </h2>
-          <Link
-            href="/collections"
-            className="text-sm font-normal cursor-pointer hover:underline"
-          >
+          <Link href="/collections" className="text-sm font-normal cursor-pointer hover:underline">
             See More
           </Link>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {/* REVISI: Menggunakan `item.id` untuk `key` */}
-          {productsData.map((item, idx) => (
-            <motion.div
-              custom={idx}
-              initial="hidden"
-              whileInView="visible"
-              variants={itemVariants}
-              key={item.id}
-              className="w-full h-full overflow-hidden rounded group cursor-pointer"
-            >
-              <Link
-                href={`/detailProducts/${item.id}`}
-                className="flex-shrink-0"
-              >
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
-                  <Image
-                    src={item.img}
-                    alt={item.name}
-                    fill
-                    style={{ objectFit: "cover" }}
-                    className="transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  />
-                </div>
-                <div className="flex flex-col items-start mt-2">
-                  <p className="text-black text-sm sm:text-lg font-semibold">
-                    {item.name}
-                  </p>
-                  <p className="text-black text-sm sm:text-lg font-normal">
-                    Rp. {item.price.toLocaleString("id-ID")}
-                  </p>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+          {isLoading ? (
+            Array.from({ length: 8 }).map((_, idx) => <ProductCardSkeleton key={idx} />)
+          ) : error ? (
+            <p className="col-span-full text-center text-destructive">{error}</p>
+          ) : (
+            products.map((product, idx) => {
+              
+              // --- Logika Baru untuk Harga ---
+              const { min_price, max_price } = product;
+              const format = (val: number) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(val);
+              
+              let displayPrice: string;
+              if (min_price === max_price) {
+                displayPrice = format(min_price);
+              } else {
+                displayPrice = `${format(min_price)} - ${format(max_price)}`;
+              }
+              // Jika ingin menampilkan "Mulai dari", gunakan ini:
+              // const displayPrice = `Mulai dari ${format(min_price)}`;
+
+              const imageUrl = product.variants[0]?.images[0]?.path;
+              const publicImageUrl = imageUrl ? `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${imageUrl}` : "/placeholder.png";
+
+              return (
+                <motion.div
+                  custom={idx}
+                  initial="hidden"
+                  whileInView="visible"
+                  variants={itemVariants}
+                  key={product.id}
+                  className="w-full h-full rounded group"
+                >
+                  <Link href={`/products/${product.slug}`} className="flex flex-col h-full cursor-pointer">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
+                      <Image
+                        src={publicImageUrl}
+                        alt={product.product_name}
+                        fill
+                        style={{ objectFit: "cover" }}
+                        className="transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                      />
+                    </div>
+                    <div className="flex flex-col flex-grow items-start mt-4">
+                      <h4 className="text-black text-base font-semibold line-clamp-2" style={{ minHeight: "2.5rem" }}>
+                        {product.product_name}
+                      </h4>
+                    </div>
+                    <p className="text-gray-800 text-lg font-medium mt-2">
+                      {displayPrice}
+                    </p>
+                  </Link>
+                </motion.div>
+              );
+            })
+          )}
         </div>
       </section>
 
+      {/* ... (Section 4, 5, 6: Gallery, Reviews, FAQ tidak berubah) ... */}
       {/* Section 4: Product Gallery - Ganti Video */}
       <section className="p-6 md:px-20 md:py-10">
-        <motion.div
+        {/* <motion.div
           whileInView={{ opacity: 1, y: 0 }}
           initial={{ opacity: 0, y: 100 }}
           transition={{ duration: 0.7 }}
@@ -233,7 +314,7 @@ export default function HomePage() {
           >
             See More
           </Link>
-        </motion.div>
+        </motion.div> */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-1 items-start">
           {/* Kolom Kiri */}
           <div className="flex md:flex-col gap-4 h-full">

@@ -33,11 +33,14 @@ export type Size = {
   id: number;
   name: string;
   code: string;
+  description:string
+
 };
 
 export type Material = {
   id: number;
   name: string;
+  description:string
 };
 
 export type ProductImage = {
@@ -63,6 +66,9 @@ export type Product = {
   id: number;
   product_name: string;
   category: Category;
+  slug: string;
+  min_price:number;
+  max_price:number;
   created_at: string;
   description?: string;
   gender: 'men' | 'women' | 'unisex';

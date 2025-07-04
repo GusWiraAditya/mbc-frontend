@@ -20,6 +20,10 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+         // --- REVISI: TAMBAHKAN DUA VARIAN BARU DI BAWAH INI ---
+        "outline-no-hover": "border border-input bg-background", // Sama seperti 'outline' tapi tanpa hover
+        "ghost-no-hover": "bg-transparent", // Sama seperti 'ghost' tapi tanpa hover
+        
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
