@@ -142,7 +142,11 @@ export default function Navbar() {
                 <Link href="/cart" aria-label="Shopping Cart" className={`${navColor} hover:text-secondary transition-colors`}>
                   <ShoppingCart size={24}/>
                 </Link>
-                <div className="relative" ref={dropdownRef}>
+                <Link href="/profile/myOrder" aria-label="Shopping Cart" className={`flex items-center gap-2 font-semibold ${navColor}`}>
+                  <User size={24}/>
+                  {user.name}
+                </Link>
+                {/* <div className="relative" ref={dropdownRef}>
                   <button onClick={() => setIsProfileOpen(!isProfileOpen)} className={`flex items-center gap-2 font-semibold ${navColor}`}>
                     {user.name}
                     <ChevronDown size={16} className={`transition-transform ${isProfileOpen ? 'rotate-180' : ''}`}/>
@@ -157,7 +161,7 @@ export default function Navbar() {
                       </button>
                     </div>
                   )}
-                </div>
+                </div> */}
               </div>
             ) : (
               <Link href="/auth/login">
