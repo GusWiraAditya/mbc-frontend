@@ -55,8 +55,8 @@ export default function CustomerRegisterForm() {
         isInitialized: true,
       });
 
-      showSuccess("Registrasi berhasil! Selamat datang.");
-      router.replace("/"); // Arahkan ke homepage setelah berhasil
+      showSuccess("Registrasi berhasil! Silakan Login Kembali.");
+      router.replace("/auth/login"); // Arahkan ke homepage setelah berhasil
     } catch (err: any) {
       // Menampilkan pesan error dari backend jika ada
       const serverErrors = err?.response?.data?.errors;

@@ -142,14 +142,18 @@ export default function Navbar() {
                 <Link href="/cart" aria-label="Shopping Cart" className={`${navColor} hover:text-secondary transition-colors`}>
                   <ShoppingCart size={24}/>
                 </Link>
-                <div className="relative" ref={dropdownRef}>
+                <Link href="/profile/myOrder" aria-label="Shopping Cart" className={`flex items-center gap-2 font-semibold ${navColor}`}>
+                  <User size={24}/>
+                  {user.name}
+                </Link>
+                {/* <div className="relative" ref={dropdownRef}>
                   <button onClick={() => setIsProfileOpen(!isProfileOpen)} className={`flex items-center gap-2 font-semibold ${navColor}`}>
                     {user.name}
                     <ChevronDown size={16} className={`transition-transform ${isProfileOpen ? 'rotate-180' : ''}`}/>
                   </button>
                   {isProfileOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                      <Link href="/profile" className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      <Link href="/profile/myOrder" className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <User size={16}/> Profile
                       </Link>
                       <button onClick={handleLogout} className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -157,7 +161,7 @@ export default function Navbar() {
                       </button>
                     </div>
                   )}
-                </div>
+                </div> */}
               </div>
             ) : (
               <Link href="/auth/login">
