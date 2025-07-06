@@ -1,6 +1,7 @@
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
 import AuthStatusNotifier from "@/components/auth/auth-status-notifier"; // <-- Impor komponen baru
+import FloatingWhatsappButton from "@/components/ui/floating-wa"
 
 
 /**
@@ -19,6 +20,7 @@ export default function CustomerLayout({
       <main className="flex-grow">
         {/* {children} akan menjadi halaman seperti /collections, /about, dll. */}
         {children}
+         <FloatingWhatsappButton />
       </main>
       <Footer />
     </div>
