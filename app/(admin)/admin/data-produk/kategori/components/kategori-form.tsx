@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useForm,  Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
@@ -18,7 +18,6 @@ import api from "@/lib/api";
 import { Category } from "./kategori-columns";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-
 
 interface CategoryFormProps {
   initialData?: Category | null;
@@ -49,14 +48,14 @@ export function CategoryForm({
   const {
     register,
     handleSubmit,
-     control,
+    control,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       category_name: initialData?.category_name || "",
       description: initialData?.description || "",
-       is_active: initialData ? !!initialData.is_active : true,
+      is_active: initialData ? !!initialData.is_active : true,
     },
   });
 
@@ -115,9 +114,14 @@ export function CategoryForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[75vh] overflow-y-auto">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4 max-h-[75vh] overflow-y-auto"
+    >
       <div>
-        <Label htmlFor="category_name" className="mb-2">Nama Kategori</Label>
+        <Label htmlFor="category_name" className="mb-2">
+          Nama Kategori
+        </Label>
         <Input
           id="category_name"
           {...register("category_name")}
@@ -130,21 +134,23 @@ export function CategoryForm({
         )}
       </div>
       <div>
-              <Label className="mb-2" htmlFor="description">Deskripsi</Label>
-              <Textarea
-                id="description"
-                {...register("description")}
-                placeholder="Deskripsi Kategori"
-                rows={4}
-              />
-              {errors.description && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.description.message}
-                </p>
-              )}
-            </div>
+        <Label className="mb-2" htmlFor="description">
+          Deskripsi
+        </Label>
+        <Textarea
+          id="description"
+          {...register("description")}
+          placeholder="Deskripsi Kategori"
+          rows={4}
+        />
+        {errors.description && (
+          <p className="text-sm text-red-500 mt-1">
+            {errors.description.message}
+          </p>
+        )}
+      </div>
 
-             {/* --- REVISI: TAMBAHKAN KOMPONEN SWITCH DI SINI --- */}
+      {/* --- REVISI: TAMBAHKAN KOMPONEN SWITCH DI SINI --- */}
       <div>
         <Label>Status Kategori</Label>
         <Controller
@@ -158,17 +164,28 @@ export function CategoryForm({
                 onCheckedChange={field.onChange}
                 disabled={isSubmitting}
               />
-              <Label htmlFor="is_active" className="cursor-pointer text-muted-foreground">
-                {field.value ? "Aktif (Kategori akan tampil di toko)" : "Nonaktif (Kategori disembunyikan)"}
+              <Label
+                htmlFor="is_active"
+                className="cursor-pointer text-muted-foreground"
+              >
+                {field.value
+                  ? "Aktif (Kategori akan tampil di toko)"
+                  : "Nonaktif (Kategori disembunyikan)"}
               </Label>
             </div>
           )}
         />
-        {errors.is_active && (<p className="text-sm text-red-500 mt-1">{errors.is_active.message}</p>)}
+        {errors.is_active && (
+          <p className="text-sm text-red-500 mt-1">
+            {errors.is_active.message}
+          </p>
+        )}
       </div>
 
       <div>
-        <Label htmlFor="image" className="mb-2">Gambar Kategori</Label>
+        <Label htmlFor="image" className="mb-2">
+          Gambar Kategori
+        </Label>
         <Input
           id="image"
           type="file"

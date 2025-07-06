@@ -1,4 +1,3 @@
-// --- File 2: app/(admin)/layout.tsx (REVISI FINAL - Menjadi Penjaga Utama) ---
 "use client";
 
 import { useEffect } from "react";
@@ -33,11 +32,6 @@ const AdminLoadingScreen = () => (
   </div>
 );
 
-/**
- * Ini adalah implementasi BEST PRACTICE.
- * AdminLayout sekarang bertindak sebagai "penjaga gerbang" utama untuk seluruh
- * area admin. Ia memeriksa status autentikasi SEBELUM merender UI admin.
- */
 export default function AdminLayout({
   children,
 }: {

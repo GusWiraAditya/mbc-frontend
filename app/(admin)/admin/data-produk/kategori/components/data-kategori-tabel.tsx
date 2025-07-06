@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { PlusCircle, TriangleAlert } from "lucide-react"
-import { DataTable } from "../../../data-table"
+import { DataTable } from "../../../components/data-table"
 import { Category, getColumns } from "./kategori-columns"
 import api from "@/lib/api"
 import {
@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { CategoryForm } from "./kategori-form"
 import { showError, showSuccess } from "@/lib/toast"
-import PageSkeleton from "../../../skeleton";
+import PageSkeleton from "../../../components/skeleton";
 
 
 // Fungsi untuk mengambil data kategori dari API
@@ -91,7 +91,6 @@ export default function CategoriesPage() {
 
   const columns = useMemo(() => getColumns({ onEdit: handleEdit, onDelete: handleDelete }), []);
 
-  // REVISI: Tampilkan skeleton loader saat isLoading
   if (isLoading) {
     return <PageSkeleton/>;
   }

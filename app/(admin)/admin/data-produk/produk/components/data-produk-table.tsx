@@ -5,14 +5,14 @@
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, TriangleAlert } from "lucide-react"; 
-import { DataTable } from "../../../data-table"; // sesuaikan path jika perlu
+import { DataTable } from "../../../components/data-table"; // sesuaikan path jika perlu
 import { Product, getProductColumns } from "./produk-columns";
 import api from "@/lib/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ProductForm } from "./produk-form";
 import { showError, showSuccess } from "@/lib/toast";
-import PageSkeleton from "../../../skeleton";
+import PageSkeleton from "../../../components/skeleton";
 
 async function getProducts(): Promise<Product[]> {
   try {

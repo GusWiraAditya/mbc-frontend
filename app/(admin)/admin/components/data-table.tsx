@@ -30,7 +30,6 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, FileDown, Slide
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  // REVISI: Tambahkan prop untuk nama file ekspor agar bisa digunakan kembali
   exportFileName?: string;
 }
 
@@ -68,7 +67,6 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  // REVISI: Fungsi helper untuk mendapatkan data ekspor yang lebih cerdas
   const getExportData = () => {
     // Dapatkan header yang bisa dibaca manusia dari definisi kolom
     const headerLabels = table.getVisibleFlatColumns()

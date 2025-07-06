@@ -48,9 +48,7 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-// --- 3. TIPE DATA (Tidak ada perubahan) ---
 
-// --- 4. KOMPONEN SKELETON (Tidak ada perubahan) ---
 type MasterData = {
   categories: { id: number; category_name: string; slug: string }[];
   colors: { id: number; name: string; hex_code: string }[];

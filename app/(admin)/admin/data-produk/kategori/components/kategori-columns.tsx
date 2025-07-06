@@ -53,7 +53,6 @@ export const getColumns = ({ onEdit, onDelete }: ColumnsProps): ColumnDef<Catego
   },
   { 
     accessorKey: "category_name", 
-    // REVISI: Mengubah header menjadi fungsi yang merender Button
     header: ({ column }) => {
       return (
         <Button

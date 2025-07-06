@@ -3,9 +3,14 @@ import {
   GalleryVerticalEnd,
   LayoutDashboard,
   ShoppingBag,
+  ClipboardList,
   LucideIcon,
   AudioWaveform,
   Command,
+  Settings,
+   UsersRound,
+   Users,
+   ScrollText,
   Palette, // 
 } from "lucide-react";
 
@@ -31,6 +36,7 @@ export type SidebarData = {
     // logo: StaticImageData; // URL atau path ke logo
     teams: { name: string; logo: LucideIcon; plan: string }[];
     dashboard: NavItem[];
+    settings: NavItem[];
     pengguna: NavItem[];
     navData: NavDataItem[];
     laporan: NavItem[];
@@ -48,9 +54,12 @@ export const sidebarData: SidebarData = {
   dashboard: [
     { name: "Dashboard", url: "/admin/dashboard", icon: LayoutDashboard, isActive: true },
   ],
+  settings: [
+    { name: "Pengaturan Toko", url: "/admin/pengaturan-toko", icon: Settings},
+  ],
   pengguna: [
-    { name: "Data Admin", url: "#", icon: LayoutDashboard },
-    { name: "Data Pelanggan", url: "#", icon: LayoutDashboard },
+    { name: "Data Admin", url: "#", icon:  UsersRound },
+    { name: "Data Pelanggan", url: "#", icon: Users },
   ],
   navData: [
     {
@@ -61,18 +70,18 @@ export const sidebarData: SidebarData = {
         { title: "Kategori", url: "/admin/data-produk/kategori"},
         { title: "Atribut", url: "/admin/data-produk/atribut" },
         { title: "Produk", url: "/admin/data-produk/produk" },
-        { title: "Voucher", url: "#" },
+        { title: "Voucher", url: "/admin/data-produk/voucher" },
       ],
     },
     {
       title: "Data Pesanan",
       url: "#", 
-      icon: Bot,
+      icon: ClipboardList,
       items: [
         { title: "Pembayaran", url: "#" },
         { title: "Pengiriman", url: "#" },
       ],
     },
   ],
-  laporan: [{ name: "Penjualan", url: "#", icon: LayoutDashboard }],
+  laporan: [{ name: "Penjualan", url: "#", icon: ScrollText }],
 };

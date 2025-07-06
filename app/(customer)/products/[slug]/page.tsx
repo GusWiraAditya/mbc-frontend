@@ -99,7 +99,6 @@ function ProductDetailComponent() {
   const [error, setError] = useState<string | null>(null);
   
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
-  // --- REVISI 1: State baru untuk melacak gambar utama ---
   const [mainImage, setMainImage] = useState<ProductImage | null>(null);
 
   useEffect(() => {
@@ -127,7 +126,6 @@ function ProductDetailComponent() {
     fetchData();
   }, [slug]);
 
-   // --- REVISI 2: useEffect untuk sinkronisasi gambar saat varian berubah ---
   useEffect(() => {
     // Setiap kali `selectedVariant` berubah (karena user ganti warna),
     // reset gambar utama ke gambar pertama dari varian baru tersebut.
@@ -194,7 +192,6 @@ function ProductDetailComponent() {
               </AnimatePresence>
             </div>
             <div className="grid grid-cols-5 gap-2">
-              {/* REVISI 4: Thumbnail sekarang interaktif */}
               {selectedVariant?.images.map((image, index) => (
                 <button
                   key={image.id}

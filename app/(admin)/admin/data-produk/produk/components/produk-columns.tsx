@@ -20,7 +20,9 @@ import { Badge } from "@/components/ui/badge"
 
 export type Category = {
   id: number;
+  slug: string;
   category_name: string;
+  image: string | null;
 };
 
 export type Color = {
@@ -57,6 +59,7 @@ export type ProductVariant = {
   size: Size;
   material: Material;
   images: ProductImage[];
+  weight: number;
   // Properti frontend-only untuk form
   newImages?: File[];
   deletedImageIds?: number[];

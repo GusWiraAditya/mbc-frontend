@@ -130,6 +130,7 @@ export function ProductForm({
           material_id: String(v.material.id),
           price: v.price,
           stock: v.stock,
+          weight: v.weight,
           sku: v.sku || "",
           existingImages: v.images || [],
           newImageFiles: [],
@@ -237,6 +238,7 @@ export function ProductForm({
         formData.append(`variants[${index}][material_id]`, variant.material_id);
         formData.append(`variants[${index}][price]`, String(variant.price));
         formData.append(`variants[${index}][stock]`, String(variant.stock));
+        formData.append(`variants[${index}][weight]`, String(variant.weight)); // Tambahkan weight
         // Ganti 'rating' dengan 'sku'
         if (variant.sku) {
           formData.append(`variants[${index}][sku]`, variant.sku);
@@ -441,6 +443,7 @@ export function ProductForm({
                     material_id: "",
                     price: 0,
                     stock: 0,
+                    weight: 0,
                     sku: "",
                     existingImages: [],
                     newImageFiles: [],
@@ -572,56 +575,12 @@ export function ProductForm({
                           )}
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div>
-                          <Label className="mb-2">Harga</Label>
-                          <Input
-                            type="number"
-                            {...form.register(`variants.${index}.price`)}
-                          />
-                          {form.formState.errors.variants?.[index]?.price && (
-                            <p className="text-sm text-red-500 mt-1">
-                              {
-                                form.formState.errors.variants[index].price
-                                  .message
-                              }
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <Label className="mb-2">Stok</Label>
-                          <Input
-                            type="number"
-                            {...form.register(`variants.${index}.stock`)}
-                          />
-                          {form.formState.errors.variants?.[index]?.stock && (
-                            <p className="text-sm text-red-500 mt-1">
-                              {
-                                form.formState.errors.variants[index].stock
-                                  .message
-                              }
-                            </p>
-                          )}
-                        </div>
-                        {/* --- REVISI UTAMA PADA TAMPILAN --- */}
-                        <div>
-                          <Label className="mb-2">
-                            SKU <span className="text-destructive">*</span>
-                          </Label>
-                          <Input
-                            type="text"
-                            placeholder="Terisi otomatis..."
-                            {...form.register(`variants.${index}.sku`)}
-                          />
-                          {form.formState.errors.variants?.[index]?.sku && (
-                            <p className="text-sm text-red-500 mt-1">
-                              {
-                                form.formState.errors.variants[index].sku
-                                  .message
-                              }
-                            </p>
-                          )}
-                        </div>
+                       {/* --- REVISI UTAMA PADA TAMPILAN --- */}
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div><Label>Harga <span className="text-destructive">*</span></Label><Input type="number" {...form.register(`variants.${index}.price`)} />{form.formState.errors.variants?.[index]?.price && <p className="text-sm text-red-500 mt-1">{form.formState.errors.variants[index].price.message}</p>}</div>
+                        <div><Label>Stok <span className="text-destructive">*</span></Label><Input type="number" {...form.register(`variants.${index}.stock`)} />{form.formState.errors.variants?.[index]?.stock && <p className="text-sm text-red-500 mt-1">{form.formState.errors.variants[index].stock.message}</p>}</div>
+                        <div><Label>Berat (gram) <span className="text-destructive">*</span></Label><Input type="number" {...form.register(`variants.${index}.weight`)} />{form.formState.errors.variants?.[index]?.weight && <p className="text-sm text-red-500 mt-1">{form.formState.errors.variants[index].weight.message}</p>}</div>
+                        <div><Label>SKU <span className="text-destructive">*</span></Label><Input type="text" placeholder="Terisi otomatis..." {...form.register(`variants.${index}.sku`)} />{form.formState.errors.variants?.[index]?.sku && <p className="text-sm text-red-500 mt-1">{form.formState.errors.variants[index].sku.message}</p>}</div>
                       </div>
                       <div>
                         <Label className="mb-2">Gambar Varian</Label>
