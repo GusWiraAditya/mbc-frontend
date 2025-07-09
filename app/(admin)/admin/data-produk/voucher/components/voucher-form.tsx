@@ -3,11 +3,20 @@
 
 import { useForm, Controller, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
+
+// Impor Tipe & Skema
+import { voucherSchema, VoucherFormData } from "@/lib/validation";
+import { Voucher } from "./voucher-columns";
+import { Product } from "@/app/(admin)/admin/data-produk/produk/components/produk-columns";
+import { Category } from "@/app/(admin)/admin/data-produk/kategori/components/kategori-columns";
+
+// Impor utilitas & komponen UI
 import { cn } from "@/lib/utils";
+import api from "@/lib/api";
+import { showError, showSuccess } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,16 +44,15 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Badge } from "@/components/ui/badge";
-import { Calendar as CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import api from "@/lib/api";
-import { showError, showSuccess } from "@/lib/toast";
-import { voucherSchema } from "@/lib/validation";
-import { Voucher } from "./voucher-columns";
-import { Product } from "@/app/(admin)/admin/data-produk/produk/components/produk-columns";
-import { Category } from "@/app/(admin)/admin/data-produk/kategori/components/kategori-columns";
+import {
+  Calendar as CalendarIcon,
+  Check,
+  ChevronsUpDown,
+  Loader2,
+  X,
+} from "lucide-react";
 
-// Types
+// --- Konstanta & Tipe Data Lokal ---
 const typeOptions = [
   { label: "Potongan Harga (Transaksi)", value: "fixed_transaction" },
   { label: "Potongan Persen (Transaksi)", value: "percent_transaction" },
@@ -53,33 +61,53 @@ const typeOptions = [
   { label: "Gratis Ongkir", value: "free_shipping" },
 ];
 
-// Reusable MultiSelect component
+const stackingGroupOptions = [
+  { label: "Diskon Transaksi", value: "transaction_discount" },
+  { label: "Diskon per Item", value: "item_discount" },
+  { label: "Diskon Ongkos Kirim", value: "shipping_discount" },
+  { label: "Lainnya (Unik/Tidak Bisa Digabung)", value: "unique" },
+];
+
 interface MultiSelectProps {
   options: Array<{ value: string; label: string }>;
   selected: string[];
   onChange: (values: string[]) => void;
   placeholder: string;
+  disabled?: boolean;
 }
 
+// Komponen MultiSelect yang dapat digunakan kembali
 function MultiSelect({
   options,
   selected,
   onChange,
   placeholder,
+  disabled = false,
 }: MultiSelectProps) {
   const [open, setOpen] = useState(false);
 
-  const handleSelect = (value: string) => {
-    onChange(
-      selected.includes(value)
-        ? selected.filter((item: string) => item !== value)
-        : [...selected, value]
-    );
-  };
+  const handleSelect = useCallback(
+    (value: string) => {
+      onChange(
+        selected.includes(value)
+          ? selected.filter((item) => item !== value)
+          : [...selected, value]
+      );
+    },
+    [selected, onChange]
+  );
 
-  const selectedLabels = selected
-    .map((value: string) => options.find((opt) => opt.value === value)?.label)
-    .filter((label): label is string => Boolean(label));
+  const handleRemove = useCallback(
+    (value: string, e: React.MouseEvent) => {
+      e.stopPropagation();
+      onChange(selected.filter((item) => item !== value));
+    },
+    [selected, onChange]
+  );
+
+  const selectedItems = selected
+    .map((value) => options.find((opt) => opt.value === value))
+    .filter((item): item is { value: string; label: string } => Boolean(item));
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -88,20 +116,32 @@ function MultiSelect({
           variant="outline"
           role="combobox"
           className="w-full justify-between h-auto min-h-10"
+          disabled={disabled}
         >
-          <div className="flex flex-wrap gap-1">
-            {selectedLabels.length > 0
-              ? selectedLabels.map((label) => (
-                  <Badge key={label} variant="outline" className="px-2 py-1">
-                    {label}
-                  </Badge>
-                ))
-              : placeholder}
+          <div className="flex flex-wrap gap-1 max-w-full">
+            {selectedItems.length > 0 ? (
+              selectedItems.map((item) => (
+                <Badge
+                  key={item.value}
+                  variant="outline"
+                  className="cursor-pointer"
+                  onClick={() => handleSelect(item.value)}
+                >
+                  {item.label}
+                  <X
+                    className="ml-1 h-3 w-3 cursor-pointer"
+                    onClick={(e) => handleRemove(item.value, e)}
+                  />
+                </Badge>
+              ))
+            ) : (
+              <span className="text-muted-foreground">{placeholder}</span>
+            )}
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0 max-h-[300px]">
         <Command>
           <CommandInput placeholder="Cari..." />
           <CommandList>
@@ -120,7 +160,7 @@ function MultiSelect({
                         : "opacity-0"
                     )}
                   />
-                  {option.label}
+                  <span className="truncate">{option.label}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -131,6 +171,7 @@ function MultiSelect({
   );
 }
 
+// --- Komponen Utama Form ---
 interface VoucherFormProps {
   initialData?: Voucher | null;
   onSuccess: () => void;
@@ -142,7 +183,6 @@ export function VoucherForm({
   onSuccess,
   onClose,
 }: VoucherFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [masterData, setMasterData] = useState<{
     products: Product[];
     categories: Category[];
@@ -150,274 +190,590 @@ export function VoucherForm({
     products: [],
     categories: [],
   });
+  const [isLoadingMasterData, setIsLoadingMasterData] = useState(true);
 
-  const form = useForm<z.infer<typeof voucherSchema>>({
-    resolver: zodResolver(voucherSchema) as Resolver<
-      z.infer<typeof voucherSchema>
-    >,
-    mode: "onChange",
-    defaultValues: initialData
-      ? {
-          name: initialData.name,
-          code: initialData.code,
-          description: initialData.description ?? "",
-          type: initialData.type,
-          value: initialData.value ?? undefined,
-          max_discount: initialData.max_discount ?? undefined,
-          min_purchase: initialData.min_purchase ?? undefined,
-          usage_limit: initialData.usage_limit ?? undefined,
-          usage_limit_per_user: initialData.usage_limit_per_user ?? undefined,
-          start_date: initialData.start_date
-            ? new Date(initialData.start_date)
-            : new Date(),
-          end_date: initialData.end_date
-            ? new Date(initialData.end_date)
-            : new Date(),
-          is_active: initialData.is_active,
-          product_ids: initialData.products?.map((p) => p.id) || [],
-          category_ids: initialData.categories?.map((c) => c.id) || [],
-        }
-      : {
+  // Fungsi untuk mendapatkan default values
+  const getDefaultValues = useCallback(
+    (data?: Voucher | null): VoucherFormData => {
+      if (!data) {
+        return {
           name: "",
           code: "",
           description: "",
           type: "fixed_transaction",
+          stacking_group: "transaction_discount",
+          is_active: true,
+          start_date: new Date(),
+          end_date: new Date(new Date().setDate(new Date().getDate() + 30)),
+          product_ids: [],
+          category_ids: [],
           value: undefined,
           max_discount: undefined,
           min_purchase: undefined,
           usage_limit: undefined,
           usage_limit_per_user: undefined,
-          start_date: new Date(),
-          end_date: new Date(new Date().setDate(new Date().getDate() + 30)),
-          is_active: true,
-          product_ids: [],
-          category_ids: [],
-        },
+        };
+      }
+
+      // Validasi dan normalisasi data untuk mode edit
+      const validTypes = [
+        "fixed_transaction",
+        "percent_transaction",
+        "fixed_item",
+        "percent_item",
+        "free_shipping",
+      ];
+      const validStackingGroups = [
+        "transaction_discount",
+        "item_discount",
+        "shipping_discount",
+        "unique",
+      ];
+
+      const normalizedType = validTypes.includes(data.type)
+        ? data.type
+        : "fixed_transaction";
+      const normalizedStackingGroup = validStackingGroups.includes(
+        data.stacking_group
+      )
+        ? data.stacking_group
+        : "transaction_discount";
+
+      return {
+        name: data.name || "",
+        code: data.code || "",
+        description: data.description || "",
+        type: normalizedType,
+        stacking_group: normalizedStackingGroup,
+        is_active: data.is_active ?? true,
+        value:
+          data.value !== null && data.value !== undefined
+            ? Number(data.value)
+            : undefined,
+        max_discount:
+          data.max_discount !== null && data.max_discount !== undefined
+            ? Number(data.max_discount)
+            : undefined,
+        min_purchase:
+          data.min_purchase !== null && data.min_purchase !== undefined
+            ? Number(data.min_purchase)
+            : undefined,
+        usage_limit:
+          data.usage_limit !== null && data.usage_limit !== undefined
+            ? Number(data.usage_limit)
+            : undefined,
+        usage_limit_per_user:
+          data.usage_limit_per_user !== null &&
+          data.usage_limit_per_user !== undefined
+            ? Number(data.usage_limit_per_user)
+            : undefined,
+        start_date: data.start_date ? new Date(data.start_date) : new Date(),
+        end_date: data.end_date
+          ? new Date(data.end_date)
+          : new Date(new Date().setDate(new Date().getDate() + 30)),
+        product_ids: data.products?.map((p) => p.id) || [],
+        category_ids: data.categories?.map((c) => c.id) || [],
+      };
+    },
+    []
+  );
+
+  const form = useForm<VoucherFormData>({
+    resolver: zodResolver(voucherSchema) as Resolver<VoucherFormData>,
+    mode: "onChange",
+    defaultValues: getDefaultValues(initialData),
   });
 
-  const { register, handleSubmit, control, watch, setError, formState, clearErrors } = form;
-  const { errors } = formState; // Destructure errors from formState
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = form;
   const watchedType = watch("type");
-
-  // Clear values when switching types to prevent logic errors
-  useEffect(() => {
-    if (watchedType === "free_shipping") {
-      form.setValue("value", 0);
-      form.setValue("max_discount", undefined);
-      form.setValue("product_ids", []);
-      form.setValue("category_ids", []);
-    } else if (!watchedType?.includes("percent")) {
-      form.setValue("max_discount", undefined);
-    }
-
-    if (!watchedType?.includes("item")) {
-      form.setValue("product_ids", []);
-      form.setValue("category_ids", []);
-    }
-  }, [watchedType, form]);
-
-  // Tambahkan useEffect untuk validasi tanggal real-time (opsional)
+  const watchedStackingGroup = watch("stacking_group");
   const watchedStartDate = watch("start_date");
-  const watchedEndDate = watch("end_date");
+  const watchedProductIds = watch("product_ids");
+  const watchedCategoryIds = watch("category_ids");
 
+  // --- Inisialisasi form saat initialData berubah ---
   useEffect(() => {
-    if (watchedStartDate && watchedEndDate && watchedEndDate < watchedStartDate) {
-      setError("end_date", {
-        type: "manual",
-        message: "Tanggal akhir tidak boleh sebelum tanggal mulai.",
-      });
-    } else {
-      // Clear error jika tanggal sudah valid
-      if (errors.end_date?.type === "manual") {
-        clearErrors("end_date");
+    if (initialData) {
+      console.log("=== INITIALIZING FORM WITH DATA ===");
+      console.log("Initial data:", initialData);
+
+      const formData = getDefaultValues(initialData);
+      console.log("Form data to reset:", formData);
+
+      reset(formData);
+      console.log("Form reset completed");
+    }
+  }, [initialData, reset, getDefaultValues]);
+
+  // --- Logika Kondisional: Menyesuaikan Form Berdasarkan Tipe Voucher ---
+  useEffect(() => {
+    if (!watchedType) return;
+
+    console.log("=== AUTO-ADJUST FORM ===");
+    console.log("Current type:", watchedType);
+    console.log("Current stacking_group:", watchedStackingGroup);
+
+    // Hanya lakukan penyesuaian otomatis jika bukan mode edit atau jika user mengubah tipe
+    if (!initialData || watchedType !== initialData.type) {
+      // 1. Atur grup voucher (stacking_group)
+      if (watchedType.includes("transaction")) {
+        setValue("stacking_group", "transaction_discount");
+      } else if (watchedType.includes("item")) {
+        setValue("stacking_group", "item_discount");
+      } else if (watchedType === "free_shipping") {
+        setValue("stacking_group", "shipping_discount");
+      }
+
+      // 2. Jika tipe bukan persen, hapus nilai 'max_discount'
+      if (!watchedType.includes("percent")) {
+        setValue("max_discount", undefined);
+      }
+
+      // 3. Jika tipe bukan per item, hapus pilihan produk/kategori
+      if (!watchedType.includes("item")) {
+        setValue("product_ids", []);
+        setValue("category_ids", []);
+      }
+
+      // 4. Jika tipe adalah gratis ongkir, atur nilai
+      if (watchedType === "free_shipping") {
+        setValue("value", 0);
+        setValue("max_discount", undefined);
       }
     }
-  }, [watchedStartDate, watchedEndDate, setError, errors.end_date, clearErrors]);
 
-  // Fetch master data when needed
+    console.log("=== FORM ADJUSTED ===");
+  }, [watchedType, setValue, initialData]);
+
+  // --- Pengambilan Data Master (Produk & Kategori) ---
   useEffect(() => {
-    // Always fetch products and categories for the form
-    if (masterData.products.length === 0) {
-      api
-        .get("/admin/products?all=true")
-        .then((res) => {
-          setMasterData((prev) => ({
-            ...prev,
-            products: res.data.data || res.data,
-          }));
-        })
-        .catch((err) => {
-          console.error("Error fetching products:", err);
-        });
-    }
+    const fetchMasterData = async () => {
+      try {
+        setIsLoadingMasterData(true);
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          api.get("/admin/products?all=true"),
+          api.get("/admin/categories?all=true"),
+        ]);
 
-    if (masterData.categories.length === 0) {
-      api
-        .get("/admin/categories?all=true")
-        .then((res) => {
-          setMasterData((prev) => ({
-            ...prev,
-            categories: res.data.data || res.data,
-          }));
-        })
-        .catch((err) => {
-          console.error("Error fetching categories:", err);
+        setMasterData({
+          products: productsResponse.data.data || productsResponse.data || [],
+          categories:
+            categoriesResponse.data.data || categoriesResponse.data || [],
         });
-    }
-  }, [masterData.products.length, masterData.categories.length]);
-
-  const onSubmit = async (data: z.infer<typeof voucherSchema>) => {
-    setIsSubmitting(true);
-    const payload = {
-      ...data,
-      value: data.type === "free_shipping" ? 0 : data.value,
-      max_discount: data.type.includes("percent") ? data.max_discount : null,
-      product_ids: data.type.includes("item") ? data.product_ids : [],
-      category_ids: data.type.includes("item") ? data.category_ids : [],
-      start_date: format(data.start_date, "yyyy-MM-dd HH:mm:ss"),
-      end_date: format(data.end_date, "yyyy-MM-dd HH:mm:ss"),
+      } catch (error) {
+        console.error("Gagal mengambil data master:", error);
+        showError("Gagal mengambil data produk dan kategori");
+      } finally {
+        setIsLoadingMasterData(false);
+      }
     };
 
+    fetchMasterData();
+  }, []);
+
+  // --- Handler Submit Form ---
+  const onSubmit = async (data: VoucherFormData) => {
     try {
+      // Validasi tambahan sebelum submit
+      if (
+        data.type.includes("item") &&
+        (!data.product_ids || data.product_ids.length === 0) &&
+        (!data.category_ids || data.category_ids.length === 0)
+      ) {
+        showError(
+          "Pilih minimal satu produk atau kategori untuk voucher per item"
+        );
+        return;
+      }
+
+      const payload = {
+        ...data,
+        start_date: format(data.start_date, "yyyy-MM-dd HH:mm:ss"),
+        end_date: format(data.end_date, "yyyy-MM-dd HH:mm:ss"),
+        // Pastikan array kosong dikirim sebagai array kosong, bukan undefined
+        product_ids: data.product_ids || [],
+        category_ids: data.category_ids || [],
+      };
+
       if (initialData) {
         await api.put(`/admin/vouchers/${initialData.id}`, payload);
-        showSuccess("Voucher berhasil diperbarui.");
+        showSuccess("Voucher berhasil diperbarui");
       } else {
         await api.post("/admin/vouchers", payload);
-        showSuccess("Voucher berhasil ditambahkan.");
+        showSuccess("Voucher berhasil ditambahkan");
       }
+
       onSuccess();
       onClose();
     } catch (err: any) {
+      console.error("Error submitting voucher:", err);
+
       const validationErrors = err?.response?.data?.errors;
-      if (validationErrors) {
+      if (validationErrors && typeof validationErrors === "object") {
+        // Handle server-side validation errors
         Object.entries(validationErrors).forEach(([key, value]) => {
-          setError(key as any, {
-            type: "server",
-            message: (value as string[])[0],
-          });
+          if (Array.isArray(value) && value.length > 0) {
+            form.setError(key as keyof VoucherFormData, {
+              type: "server",
+              message: value[0],
+            });
+          }
         });
       } else {
-        showError(err?.response?.data?.message || "Operasi gagal.");
+        const errorMessage =
+          err?.response?.data?.message ||
+          err?.message ||
+          "Terjadi kesalahan saat menyimpan voucher";
+        showError(errorMessage);
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
+  const isItemType = watchedType?.includes("item");
+  const isPercentType = watchedType?.includes("percent");
+  const isFreeShipping = watchedType === "free_shipping";
+
+  // Helper untuk format label input
+  const getValueLabel = () => {
+    if (isFreeShipping) return "Nilai (Otomatis: 0)";
+    return isPercentType ? "Persentase (%)" : "Nilai Potongan (Rp)";
+  };
+
+  // Helper untuk mendapatkan label yang dipilih
+  const getSelectedTypeLabel = () => {
+    return (
+      typeOptions.find((opt) => opt.value === watchedType)?.label ||
+      "Pilih tipe voucher"
+    );
+  };
+
+  const getSelectedStackingGroupLabel = () => {
+    return (
+      stackingGroupOptions.find((opt) => opt.value === watchedStackingGroup)
+        ?.label || "Pilih grup..."
+    );
+  };
+
+  // Tampilkan loading hanya jika master data masih dimuat
+  if (isLoadingMasterData) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+        <span>Memuat data produk dan kategori...</span>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="space-y-4 max-h-[65vh] overflow-y-auto p-1 pr-4">
-        <div>
-          <Label htmlFor="name">Nama Voucher</Label>
-          <Input
-            id="name"
-            {...register("name")}
-            placeholder="Contoh: Diskon Lebaran"
-          />
-          {errors.name && (
-            <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
-          )}
+      <div className="space-y-4 max-h-[70vh] overflow-y-auto p-1 pr-4">
+        {/* --- Bagian Informasi Dasar --- */}
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="name">Nama Voucher *</Label>
+            <Input
+              id="name"
+              {...register("name")}
+              placeholder="Contoh: Diskon Lebaran"
+              className={errors.name ? "border-red-500" : ""}
+            />
+            {errors.name && (
+              <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="code">Kode Unik *</Label>
+            <Input
+              id="code"
+              {...register("code")}
+              placeholder="LEBARAN2025"
+              className={errors.code ? "border-red-500" : ""}
+            />
+            {errors.code && (
+              <p className="text-sm text-red-500 mt-1">{errors.code.message}</p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="description">Deskripsi (Opsional)</Label>
+            <Textarea
+              id="description"
+              {...register("description")}
+              placeholder="Deskripsi voucher..."
+              rows={3}
+            />
+          </div>
         </div>
 
-        <div>
-          <Label htmlFor="code">Kode Unik</Label>
-          <Input id="code" {...register("code")} placeholder="LEBARAN2025" />
-          {errors.code && (
-            <p className="text-sm text-red-500 mt-1">{errors.code.message}</p>
-          )}
+        {/* --- Bagian Aturan & Tipe --- */}
+        <div className="space-y-4 pt-4 border-t">
+          <h3 className="text-lg font-semibold">Aturan Voucher</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Controller
+              name="type"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <Label>Tipe Voucher *</Label>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger
+                      className={errors.type ? "border-red-500" : ""}
+                    >
+                      <SelectValue placeholder="Pilih tipe voucher">
+                        {getSelectedTypeLabel()}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {typeOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.type && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.type.message}
+                    </p>
+                  )}
+                </div>
+              )}
+            />
+
+            <Controller
+              name="stacking_group"
+              control={control}
+              render={({ field }) => (
+                <div>
+                  <Label>Grup Kombinasi Voucher *</Label>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger
+                      className={errors.stacking_group ? "border-red-500" : ""}
+                    >
+                      <SelectValue placeholder="Pilih grup...">
+                        {getSelectedStackingGroupLabel()}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stackingGroupOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.stacking_group && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {errors.stacking_group.message}
+                    </p>
+                  )}
+                </div>
+              )}
+            />
+          </div>
         </div>
 
-        <div>
-          <Label htmlFor="description">Deskripsi (Opsional)</Label>
-          <Textarea id="description" {...register("description")} />
-        </div>
+        {/* --- Bagian Nilai & Batasan --- */}
+        <div className="space-y-4 pt-4 border-t">
+          <h3 className="text-lg font-semibold">Nilai & Batasan</h3>
 
-        <Controller
-          name="type"
-          control={control}
-          render={({ field }) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label>Tipe Voucher</Label>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {typeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.type && (
+              <Label htmlFor="value">{getValueLabel()} *</Label>
+              <Input
+                id="value"
+                type="number"
+                {...register("value")}
+                disabled={isFreeShipping}
+                placeholder={
+                  isFreeShipping
+                    ? "0"
+                    : isPercentType
+                    ? "Contoh: 10"
+                    : "Contoh: 50000"
+                }
+                className={errors.value ? "border-red-500" : ""}
+              />
+              {errors.value && (
                 <p className="text-sm text-red-500 mt-1">
-                  {errors.type.message}
+                  {errors.value.message}
                 </p>
               )}
             </div>
-          )}
-        />
 
-        {/* Value and Max Discount - Always show but conditionally disable */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>
-              {watchedType?.includes("percent")
-                ? "Persentase (%)"
-                : watchedType === "free_shipping"
-                ? "Nilai (Otomatis 0 untuk Gratis Ongkir)"
-                : "Nilai Potongan (Rp)"}
-            </Label>
-            <Input
-              type="number"
-              {...register("value", { valueAsNumber: true })}
-              disabled={watchedType === "free_shipping"}
-              placeholder={
-                watchedType === "free_shipping" ? "0" : "Masukkan nilai"
-              }
-            />
-            {errors.value && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.value.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label>
-              Potongan Maksimal (Rp)
-              {!watchedType?.includes("percent") && (
-                <span className="text-xs text-muted-foreground ml-1">
-                  (Hanya untuk tipe persen)
-                </span>
+            <div>
+              <Label htmlFor="max_discount">Potongan Maksimal (Rp)</Label>
+              <Input
+                id="max_discount"
+                type="number"
+                {...register("max_discount")}
+                disabled={!isPercentType}
+                placeholder={
+                  !isPercentType ? "Tidak diperlukan" : "Contoh: 50000"
+                }
+                className={errors.max_discount ? "border-red-500" : ""}
+              />
+              {errors.max_discount && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.max_discount.message}
+                </p>
               )}
-            </Label>
-            <Input
-              type="number"
-              {...register("max_discount", { valueAsNumber: true })}
-              disabled={!watchedType?.includes("percent")}
-              placeholder={
-                !watchedType?.includes("percent")
-                  ? "Tidak diperlukan"
-                  : "Masukkan batas maksimal"
-              }
-            />
-            {errors.max_discount && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.max_discount.message}
-              </p>
-            )}
+            </div>
           </div>
         </div>
 
-        {/* Date Range Section */}
+        {/* --- Bagian Keterkaitan Produk/Kategori --- */}
         <div className="space-y-4 pt-4 border-t">
-          <h3 className="text-md font-semibold">Periode Berlaku</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <h3 className="text-lg font-semibold">
+            Berlaku Untuk{" "}
+            {isItemType && <span className="text-red-500">*</span>}
+          </h3>
+
+          <div>
+            <Label>Produk Spesifik</Label>
+
+            <Controller
+              name="product_ids"
+              control={control}
+              render={({ field }) => {
+                // --- TAMBAHKAN LOG UNTUK DEBUGGING ---
+                console.log("=== RENDER MULTISELECT (PRODUK) ===");
+                console.log(
+                  "Master Data Produk Tersedia:",
+                  masterData.products.length > 0
+                );
+                console.log("Nilai Terpilih (dari form state):", field.value);
+                // -----------------------------------------
+
+                return (
+                  <MultiSelect
+                    placeholder={
+                      isItemType
+                        ? "Pilih produk..."
+                        : "Hanya untuk tipe per Item"
+                    }
+                    options={masterData.products.map((p) => ({
+                      value: String(p.id),
+                      label: p.product_name,
+                    }))}
+                    selected={field.value?.map(String) || []}
+                    onChange={(values) => field.onChange(values.map(Number))}
+                    disabled={!isItemType}
+                  />
+                );
+              }}
+            />
+          </div>
+
+          <div className="text-center">
+            <span className="text-sm text-muted-foreground bg-background px-2">
+              - ATAU -
+            </span>
+          </div>
+
+          <div>
+            <Label>Kategori Spesifik</Label>
+            <Controller
+              name="category_ids"
+              control={control}
+              render={({ field }) => (
+                <MultiSelect
+                  placeholder={
+                    isItemType
+                      ? "Pilih kategori..."
+                      : "Hanya untuk tipe per Item"
+                  }
+                  options={masterData.categories.map((c) => ({
+                    value: String(c.id),
+                    label: c.category_name,
+                  }))}
+                  selected={field.value?.map(String) || []}
+                  onChange={(values) => field.onChange(values.map(Number))}
+                  disabled={!isItemType}
+                />
+              )}
+            />
+          </div>
+
+          {errors.product_ids && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.product_ids.message}
+            </p>
+          )}
+          {errors.category_ids && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.category_ids.message}
+            </p>
+          )}
+        </div>
+
+        {/* --- Bagian Batasan Penggunaan & Periode --- */}
+        <div className="space-y-4 pt-4 border-t">
+          <h3 className="text-lg font-semibold">Batasan & Periode</h3>
+
+          <div>
+            <Label htmlFor="min_purchase">Minimal Pembelian (Rp)</Label>
+            <Input
+              id="min_purchase"
+              type="number"
+              placeholder="Kosongkan jika tidak ada batasan"
+              {...register("min_purchase")}
+              className={errors.min_purchase ? "border-red-500" : ""}
+            />
+            {errors.min_purchase && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.min_purchase.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label>Tanggal Mulai</Label>
+              <Label htmlFor="usage_limit">Batas Penggunaan Total</Label>
+              <Input
+                id="usage_limit"
+                type="number"
+                placeholder="Kosongkan jika tidak terbatas"
+                {...register("usage_limit")}
+                className={errors.usage_limit ? "border-red-500" : ""}
+              />
+              {errors.usage_limit && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.usage_limit.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="usage_limit_per_user">Batas per Pengguna</Label>
+              <Input
+                id="usage_limit_per_user"
+                type="number"
+                placeholder="Kosongkan jika tidak terbatas"
+                {...register("usage_limit_per_user")}
+                className={errors.usage_limit_per_user ? "border-red-500" : ""}
+              />
+              {errors.usage_limit_per_user && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.usage_limit_per_user.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label>Tanggal Mulai *</Label>
               <Controller
                 name="start_date"
                 control={control}
@@ -428,14 +784,15 @@ export function VoucherForm({
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
+                          errors.start_date && "border-red-500"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value ? (
                           format(field.value, "PPP", { locale: localeID })
                         ) : (
-                          <span>Pilih tanggal mulai</span>
+                          <span>Pilih tanggal</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -445,7 +802,6 @@ export function VoucherForm({
                         selected={field.value}
                         onSelect={field.onChange}
                         locale={localeID}
-                        disabled={(date) => date < new Date("1900-01-01")}
                         initialFocus
                       />
                     </PopoverContent>
@@ -460,7 +816,7 @@ export function VoucherForm({
             </div>
 
             <div>
-              <Label>Tanggal Berakhir</Label>
+              <Label>Tanggal Berakhir *</Label>
               <Controller
                 name="end_date"
                 control={control}
@@ -471,14 +827,15 @@ export function VoucherForm({
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground"
+                          !field.value && "text-muted-foreground",
+                          errors.end_date && "border-red-500"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {field.value ? (
                           format(field.value, "PPP", { locale: localeID })
                         ) : (
-                          <span>Pilih tanggal berakhir</span>
+                          <span>Pilih tanggal</span>
                         )}
                       </Button>
                     </PopoverTrigger>
@@ -488,11 +845,9 @@ export function VoucherForm({
                         selected={field.value}
                         onSelect={field.onChange}
                         locale={localeID}
-                        disabled={(date) => {
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0);
-                          return date < today || (watchedStartDate && date < watchedStartDate);
-                        }}
+                        disabled={(date) =>
+                          watchedStartDate && date < watchedStartDate
+                        }
                         initialFocus
                       />
                     </PopoverContent>
@@ -507,159 +862,15 @@ export function VoucherForm({
             </div>
           </div>
         </div>
-
-        {/* Product and Category Selection - Always show but conditionally disable */}
-        <div className="space-y-4 pt-4 border-t">
-          <h3 className="text-md font-semibold">
-            Berlaku Untuk
-            {watchedType?.includes("item") && (
-              <span className="text-destructive">*</span>
-            )}
-            {!watchedType?.includes("item") && (
-              <span className="text-xs text-muted-foreground ml-1">
-                (Hanya untuk tipe per Item)
-              </span>
-            )}
-          </h3>
-          <div>
-            <Label>Produk Spesifik</Label>
-            <Controller
-              name="product_ids"
-              control={control}
-              render={({ field }) => (
-                <MultiSelect
-                  placeholder={
-                    watchedType?.includes("item")
-                      ? "Pilih produk..."
-                      : "Tidak berlaku untuk tipe ini"
-                  }
-                  options={masterData.products.map((p) => ({
-                    value: String(p.id),
-                    label: p.product_name,
-                  }))}
-                  selected={
-                    watchedType?.includes("item")
-                      ? field.value?.map(String) || []
-                      : []
-                  }
-                  onChange={(values) => {
-                    if (watchedType?.includes("item")) {
-                      field.onChange(values.map(Number));
-                    }
-                  }}
-                />
-              )}
-            />
-            {!watchedType?.includes("item") && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Pilihan produk akan aktif ketika memilih tipe "per Item"
-              </p>
-            )}
-          </div>
-
-          <p className="text-center text-xs text-muted-foreground">- ATAU -</p>
-
-          <div>
-            <Label>Kategori Spesifik</Label>
-            <Controller
-              name="category_ids"
-              control={control}
-              render={({ field }) => (
-                <MultiSelect
-                  placeholder={
-                    watchedType?.includes("item")
-                      ? "Pilih kategori..."
-                      : "Tidak berlaku untuk tipe ini"
-                  }
-                  options={masterData.categories.map((c) => ({
-                    value: String(c.id),
-                    label: c.category_name,
-                  }))}
-                  selected={
-                    watchedType?.includes("item")
-                      ? field.value?.map(String) || []
-                      : []
-                  }
-                  onChange={(values) => {
-                    if (watchedType?.includes("item")) {
-                      field.onChange(values.map(Number));
-                    }
-                  }}
-                />
-              )}
-            />
-            {!watchedType?.includes("item") && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Pilihan kategori akan aktif ketika memilih tipe "per Item"
-              </p>
-            )}
-          </div>
-
-          {watchedType?.includes("item") &&
-            (errors.product_ids || errors.category_ids) && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.product_ids?.message || errors.category_ids?.message}
-              </p>
-            )}
-        </div>
-
-        <Separator />
-        <div>
-          <Label>Minimal Pembelian (Rp)</Label>
-          <Input
-            type="number"
-            placeholder="Kosongkan jika tidak ada"
-            {...register("min_purchase", {
-              setValueAs: (value) => (value === "" ? undefined : value),
-            })}
-          />
-          {errors.min_purchase && (
-            <p className="text-sm text-red-500 mt-1">
-              {errors.min_purchase.message}
-            </p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Batas Penggunaan Total</Label>
-            <Input
-              type="number"
-              placeholder="Kosongkan jika tak terbatas"
-              {...register("usage_limit", {
-                setValueAs: (value) => (value === "" ? undefined : value),
-              })}
-            />
-            {errors.usage_limit && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.usage_limit.message}
-              </p>
-            )}
-          </div>
-          <div>
-            <Label>Batas per Pengguna</Label>
-            <Input
-              type="number"
-              placeholder="1"
-              {...register("usage_limit_per_user", {
-                setValueAs: (value) => (value === "" ? undefined : value),
-              })}
-            />
-            {errors.usage_limit_per_user && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.usage_limit_per_user.message}
-              </p>
-            )}
-          </div>
-        </div>
       </div>
 
-      <div className="flex justify-end gap-2 pt-6 border-t mt-4">
+      {/* --- Bagian Aksi Form --- */}
+      <div className="flex justify-between items-center pt-6 border-t">
         <Controller
           name="is_active"
           control={control}
           render={({ field }) => (
-            <div className="flex items-center space-x-2 mr-auto">
+            <div className="flex items-center space-x-2">
               <Switch
                 id="is_active"
                 checked={field.value}
@@ -669,17 +880,27 @@ export function VoucherForm({
             </div>
           )}
         />
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onClose}
-          disabled={isSubmitting}
-        >
-          Batal
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Menyimpan..." : "Simpan Voucher"}
-        </Button>
+
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Batal
+          </Button>
+          <Button type="submit" disabled={isSubmitting || isLoadingMasterData}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Menyimpan...
+              </>
+            ) : (
+              `${initialData ? "Perbarui" : "Simpan"} Voucher`
+            )}
+          </Button>
+        </div>
       </div>
     </form>
   );

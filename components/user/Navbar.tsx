@@ -4,13 +4,22 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { showError, showSuccess } from '@/lib/toast';
-import { Menu, X, Search, User, LogOut, ChevronDown, ShoppingCart } from "lucide-react";
+import { showError, showSuccess } from "@/lib/toast";
+import {
+  Menu,
+  X,
+  Search,
+  User,
+  LogOut,
+  ChevronDown,
+  ShoppingCart,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"; 
+import { Button } from "@/components/ui/button";
 import logoPrim from "@/public/logo/mbc-primary.png";
 import logoPutih from "@/public/logo/mbc-putih.png";
 import { useAuthStore } from "@/lib/store";
+import { useCartStore } from "@/lib/store/useCartStore"; // <-- TAMBAHKAN INI
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -22,16 +31,18 @@ const navLinks = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false); 
-  
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { items } = useCartStore();
+  const totalItems = items.reduce((total, item) => total + item.quantity, 0);
+
   // REVISI: Navbar sekarang hanya membaca state dari store.
   // Tidak ada lagi pemanggilan fetchUser() dari sini.
   const { user, isAuthenticated, logout } = useAuthStore();
-  
+
   const pathname = usePathname();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isHome = pathname === "/";
-  const router = useRouter(); 
+  const router = useRouter();
 
   // REVISI: useEffect untuk fetchUser() telah DIHAPUS.
   // Tugas ini sekarang sepenuhnya ditangani oleh AuthProvider di layout.
@@ -46,7 +57,10 @@ export default function Navbar() {
   // Efek untuk menutup menu & dropdown saat klik di luar
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsProfileOpen(false);
       }
     };
@@ -61,23 +75,22 @@ export default function Navbar() {
 
   const toggleMenu = () => setIsMenuOpen((prev) => !prev);
 
-/**
+  /**
    * REVISI KUNCI: handleLogout sekarang mengelola alur UI secara lengkap.
    */
   const handleLogout = async () => {
     try {
       // 1. Panggil fungsi logout dari store untuk menghancurkan sesi.
-      await logout(); 
+      await logout();
       setIsProfileOpen(false);
-      
+
       // 2. Tampilkan pesan sukses.
-      showSuccess('Anda telah berhasil logout.'); 
-      
+      showSuccess("Anda telah berhasil logout.");
+
       // 3. Beri sedikit jeda agar user sempat melihat toast, lalu redirect.
       // setTimeout(() => {
-        router.push('/'); 
+      router.push("/");
       // }, 1500); // 1.5 detik
-
     } catch (error) {
       showError("Logout gagal, silakan coba lagi.");
     }
@@ -85,9 +98,10 @@ export default function Navbar() {
 
   const navColor = isHome && !isScrolled ? "text-white" : "text-primary";
   const borderColor = isHome && !isScrolled ? "border-white" : "border-primary";
-  const searchInputColor = isHome && !isScrolled
+  const searchInputColor =
+    isHome && !isScrolled
       ? "placeholder:text-neutral-50 border-neutral-50 text-neutral-50"
-      : "placeholder:text-primary border-primary text-primary"
+      : "placeholder:text-primary border-primary text-primary";
 
   return (
     <>
@@ -109,21 +123,21 @@ export default function Navbar() {
 
           <ul className="hidden md:flex gap-8 font-semibold">
             {navLinks.map(({ href, label }) => {
-                const isActive = pathname === href;
-                return (
-                    <li key={href}>
-                        <Link
-                        href={href}
-                        className={`transition-all pb-1 ${navColor} ${
-                            isActive
-                            ? `border-b-2 ${borderColor}`
-                            : `hover:border-b-2 ${borderColor}`
-                        }`}
-                        >
-                        {label}
-                        </Link>
-                    </li>
-                );
+              const isActive = pathname === href;
+              return (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className={`transition-all pb-1 ${navColor} ${
+                      isActive
+                        ? `border-b-2 ${borderColor}`
+                        : `hover:border-b-2 ${borderColor}`
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              );
             })}
           </ul>
 
@@ -136,45 +150,52 @@ export default function Navbar() {
                 className={`bg-transparent border-b pl-6 outline-none text-sm w-32 ${searchInputColor}`}
               />
             </div>
-            
+            <Link
+              href="/cart"
+              aria-label="Shopping Cart"
+              className="relative group"
+            >
+              {/* Ikon Keranjang */}
+              <div
+                className={`${navColor} group-hover:text-secondary transition-colors`}
+              >
+                <ShoppingCart size={24} />
+              </div>
+
+              {/* Badge Notifikasi: Muncul hanya jika ada item di keranjang */}
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-white text-xs font-bold">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
             {isAuthenticated && user ? (
               <div className="flex items-center gap-6">
-                <Link href="/cart" aria-label="Shopping Cart" className={`${navColor} hover:text-secondary transition-colors`}>
-                  <ShoppingCart size={24}/>
-                </Link>
-                <Link href="/profile/myOrder" aria-label="Shopping Cart" className={`flex items-center gap-2 font-semibold ${navColor}`}>
-                  <User size={24}/>
+                <Link
+                  href="/profile/myOrder"
+                  aria-label="Shopping Cart"
+                  className={`flex items-center gap-2 font-semibold ${navColor}`}
+                >
+                  <User size={24} />
                   {user.name}
                 </Link>
-                {/* <div className="relative" ref={dropdownRef}>
-                  <button onClick={() => setIsProfileOpen(!isProfileOpen)} className={`flex items-center gap-2 font-semibold ${navColor}`}>
-                    {user.name}
-                    <ChevronDown size={16} className={`transition-transform ${isProfileOpen ? 'rotate-180' : ''}`}/>
-                  </button>
-                  {isProfileOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                      <Link href="/profile/myOrder" className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <User size={16}/> Profile
-                      </Link>
-                      <button onClick={handleLogout} className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        <LogOut size={16}/> Logout
-                      </button>
-                    </div>
-                  )}
-                </div> */}
               </div>
             ) : (
               <Link href="/auth/login">
-                  <Button className="bg-secondary text-white font-bold px-5 py-2 rounded hover:opacity-90">
-                      LOG IN
-                  </Button>
+                <Button className="bg-secondary text-white font-bold px-5 py-2 rounded hover:opacity-90">
+                  LOG IN
+                </Button>
               </Link>
             )}
           </div>
 
           <div className="md:hidden flex items-center">
             <button onClick={toggleMenu} aria-label="Toggle Menu">
-              {isMenuOpen ? <X size={28} className={navColor} /> : <Menu size={28} className={navColor} />}
+              {isMenuOpen ? (
+                <X size={28} className={navColor} />
+              ) : (
+                <Menu size={28} className={navColor} />
+              )}
             </button>
           </div>
         </div>
@@ -183,8 +204,12 @@ export default function Navbar() {
       {/* Mobile Drawer & Overlay */}
       <>
         <div
-            className={`fixed inset-0 bg-black/60 z-50 transition-opacity duration-300 ${isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
-            onClick={toggleMenu}
+          className={`fixed inset-0 bg-black/60 z-50 transition-opacity duration-300 ${
+            isMenuOpen
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
+          }`}
+          onClick={toggleMenu}
         />
         <div
           className={`fixed top-0 right-0 h-full w-4/5 max-w-xs bg-white p-6 z-50 shadow-lg transform transition-transform duration-300 ease-in-out ${
@@ -213,37 +238,45 @@ export default function Navbar() {
               </Link>
             ))}
           </nav>
-          
+
           <div className="border-t my-6"></div>
 
           <div className="relative flex items-center mb-6">
-              <Search className={`absolute left-0 w-4 h-4 text-primary`} />
-              <input
-                type="text"
-                placeholder="Search..."
-                className={`bg-transparent border-b pl-6 outline-none text-sm w-full placeholder:text-primary border-primary text-primary`}
-              />
+            <Search className={`absolute left-0 w-4 h-4 text-primary`} />
+            <input
+              type="text"
+              placeholder="Search..."
+              className={`bg-transparent border-b pl-6 outline-none text-sm w-full placeholder:text-primary border-primary text-primary`}
+            />
           </div>
 
           {isAuthenticated && user ? (
             <div className="space-y-4">
               <p className="font-semibold text-lg">{user.name}</p>
               <Link href="/cart" className="w-full block">
-                <Button variant="outline" className="w-full flex items-center justify-center gap-2">
-                  <ShoppingCart size={16}/> View Cart
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart size={16} /> View Cart
                 </Button>
               </Link>
               <Link href="/profile" className="w-full block">
-                <Button variant="outline" className="w-full">Profile</Button>
+                <Button variant="outline" className="w-full">
+                  Profile
+                </Button>
               </Link>
-              <Button onClick={handleLogout} className="bg-red-500 text-white w-full hover:bg-red-600">
+              <Button
+                onClick={handleLogout}
+                className="bg-red-500 text-white w-full hover:bg-red-600"
+              >
                 LOG OUT
               </Button>
             </div>
           ) : (
             <Link href="/auth/login" className="w-full">
-              <Button className="bg-secondary text-white font-bold w-full py-2.5 rounded">
-                  LOG IN
+              <Button className="bg-primary text-white font-bold w-full py-2.5 rounded">
+                LOG IN
               </Button>
             </Link>
           )}

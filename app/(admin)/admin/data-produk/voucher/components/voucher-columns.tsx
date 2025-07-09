@@ -19,12 +19,12 @@ export type Voucher = {
   code: string;
   name: string;
   description: string | null;
-  type:
-    | "fixed_transaction"
+  type: "fixed_transaction"
     | "percent_transaction"
     | "fixed_item"
     | "percent_item"
     | "free_shipping";
+  stacking_group: "transaction_discount" | "item_discount" | "shipping_discount" | "unique"; // New field for stacking group
   value: number;
   max_discount: number | null;
   min_purchase: number | null;
@@ -119,7 +119,7 @@ export const getVoucherColumns = ({
       </Button>
     ),
     cell: ({ row }) => (
-      <Badge className="font-mono bg-secondary/50 text-secondary-foreground">
+      <Badge className="font-mono bg-primary/20 text-primary">
         {row.original.code}
       </Badge>
     ),

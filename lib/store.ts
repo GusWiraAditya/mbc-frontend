@@ -7,6 +7,9 @@ import {
   checkAuthStatus,
 } from "./auth";
 
+import { useCartStore } from "./store/useCartStore";
+
+
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
@@ -91,6 +94,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error) {
       console.error("Logout API call failed, but proceeding with client-side state clearing.", error);
     } finally {
+
+      // Setelah logout berhasil, reset keranjang juga.
+      // Ini memastikan bahwa keranjang tidak menyimpan data pengguna yang sudah logout.
+      useCartStore.getState().reset(); // Panggil reset dari useCartStore
+
       // Hanya reset state. Komponen yang memanggil akan menangani redirect.
       set({ user: null, isAuthenticated: false, isAuthLoading: false, isInitialized: false });
     }

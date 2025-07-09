@@ -1,5 +1,6 @@
 import Navbar from "@/components/user/Navbar";
 import Footer from "@/components/user/Footer";
+import { CartSyncTrigger } from '@/components/auth/CartSyncTrigger';
 import AuthStatusNotifier from "@/components/auth/auth-status-notifier"; // <-- Impor komponen baru
 import FloatingWhatsappButton from "@/components/ui/floating-wa";
 
@@ -19,6 +20,7 @@ export default function CustomerLayout({
       <AuthStatusNotifier />
       <Navbar />
       <main className="flex-grow">
+        <CartSyncTrigger /> {/* <-- LETAKKAN DI SINI */}
         {/* {children} akan menjadi halaman seperti /collections, /about, dll. */}
         {children}
          <FloatingWhatsappButton />

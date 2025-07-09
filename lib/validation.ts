@@ -156,96 +156,94 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 // Skema untuk Voucher (Versi Final & Stabil)
 // lib/validation.ts
 
+const optionalNumeric = z.preprocess(
+  (val) => (val === "" || val == null ? undefined : Number(val)),
+  z.number({ invalid_type_error: "Harus berupa angka." }).optional()
+);
+
 export const voucherSchema = z.object({
+  // --- Informasi Dasar ---
   name: z.string().min(3, { message: "Nama voucher minimal 3 karakter." }),
   code: z
     .string()
-    .min(3, { message: "Kode minimal 3 karakter." })
+    .min(3, { message: "Kode unik minimal 3 karakter." })
+    .regex(/^[A-Z0-9_]+$/, { message: "Kode hanya boleh berisi huruf kapital, angka, dan underscore (_)." })
     .transform((v) => v.toUpperCase()),
-  type: z.enum([
+  description: z.string().optional(),
+  is_active: z.boolean().default(true),
+
+  // --- Aturan & Tipe Voucher ---
+ type: z.enum([
     "fixed_transaction",
     "percent_transaction",
-    "fixed_item",
+    "fixed_item", 
     "percent_item",
     "free_shipping",
-  ]),
-  description: z.string().optional(),
-  value: z.coerce.number({ invalid_type_error: "Harus berupa angka." }).optional(),
-  max_discount: z.coerce
-    .number({ invalid_type_error: "Harus berupa angka." })
-    .min(1, "Potongan maksimal minimal 1.")
-    .optional()
-    .nullable(),
-  // PERBAIKAN: Gunakan union untuk field opsional
-  min_purchase: z.union([
-    z.coerce.number().min(1, "Minimal pembelian 1."),
-    z.literal("").transform(() => undefined),
-    z.undefined(),
-    z.null()
-  ]).optional(),
-  usage_limit: z.union([
-    z.coerce.number().min(1, "Minimal penggunaan 1."),
-    z.literal("").transform(() => undefined),
-    z.undefined(),
-    z.null()
-  ]).optional(),
-  usage_limit_per_user: z.union([
-    z.coerce.number().min(1, "Total penggunaan per user minimal 1."),
-    z.literal("").transform(() => undefined),
-    z.undefined(),
-    z.null()
-  ]).optional(),
-  start_date: z.preprocess(
-    (d) => (d instanceof Date ? d : new Date(d as any)),
-    z.date({ required_error: "Tanggal mulai wajib diisi." })
-  ),
-  end_date: z.preprocess(
-    (d) => (d instanceof Date ? d : new Date(d as any)),
-    z.date({ required_error: "Tanggal akhir wajib diisi." })
-  ),
-  is_active: z.boolean().default(true),
+  ]).transform((val) => val || "fixed_transaction"),
+
+   stacking_group: z.enum(
+    ["transaction_discount", "item_discount", "shipping_discount", "unique"]
+  ).optional().default("transaction_discount"),
+  
+  // --- Nilai & Batasan ---
+  value: optionalNumeric, // Menggunakan helper
+  max_discount: optionalNumeric, // Menggunakan helper
+  min_purchase: optionalNumeric, // Menggunakan helper
+  usage_limit: optionalNumeric, // Menggunakan helper
+  usage_limit_per_user: optionalNumeric, // Menggunakan helper
+
+  // --- Periode Berlaku ---
+  start_date: z.date({ required_error: "Tanggal mulai wajib diisi." }),
+  end_date: z.date({ required_error: "Tanggal akhir wajib diisi." }),
+  
+  // --- Keterkaitan dengan Produk/Kategori ---
   product_ids: z.array(z.number()).optional(),
   category_ids: z.array(z.number()).optional(),
+
 }).superRefine((data, ctx) => {
-  if (data.start_date && data.end_date && data.end_date < data.start_date) {
+  // ATURAN 1: Tanggal akhir tidak boleh sebelum tanggal mulai.
+  if (data.end_date < data.start_date) {
     ctx.addIssue({
-      code: "custom",
+      code: z.ZodIssueCode.custom,
       message: "Tanggal akhir tidak boleh sebelum tanggal mulai.",
       path: ["end_date"],
     });
   }
 
-  if (data.type !== "free_shipping" && (data.value == null || data.value < 1)) {
-    ctx.addIssue({
-      code: "custom",
+  // ATURAN 2: Field 'value' wajib diisi kecuali untuk tipe 'Gratis Ongkir'.
+  if (data.type !== "free_shipping" && (data.value === undefined || data.value < 1)) {
+     ctx.addIssue({
+      code: z.ZodIssueCode.custom,
       message: "Nilai/persen wajib diisi (minimal 1).",
       path: ["value"],
     });
   }
 
-  if (
-    data.type.includes("percent") &&
-    (data.max_discount == null || data.max_discount < 1)
-  ) {
+  // ATURAN 3: Field 'max_discount' wajib diisi jika tipe voucher adalah persen.
+  if (data.type.includes("percent") && (data.max_discount === undefined || data.max_discount < 1)) {
     ctx.addIssue({
-      code: "custom",
+      code: z.ZodIssueCode.custom,
       message: "Potongan maksimal wajib diisi (minimal 1).",
       path: ["max_discount"],
     });
   }
 
+  // ATURAN 4: Wajib memilih produk atau kategori jika tipe voucher adalah per item.
   if (
     data.type.includes("item") &&
-    (!Array.isArray(data.product_ids) || data.product_ids.length === 0) &&
-    (!Array.isArray(data.category_ids) || data.category_ids.length === 0)
+    (data.product_ids?.length === 0 || !data.product_ids) &&
+    (data.category_ids?.length === 0 || !data.category_ids)
   ) {
     ctx.addIssue({
-      code: "custom",
-      message: "Pilih minimal satu produk atau kategori.",
-      path: ["product_ids"],
+      code: z.ZodIssueCode.custom,
+      message: "Pilih minimal satu produk atau kategori untuk tipe voucher ini.",
+      path: ["product_ids"], // Tampilkan pesan error di bawah field produk
     });
   }
 });
+
+// Kita juga bisa mengekspor tipe TypeScript yang dihasilkan oleh Zod
+export type VoucherFormData = z.infer<typeof voucherSchema>;
 
 // --- Skema Validasi untuk SETTINGS (Sudah Benar) ---
 const phoneRegex = new RegExp(/^(\+62|62|0)8[1-9][0-9]{7,14}$/);
