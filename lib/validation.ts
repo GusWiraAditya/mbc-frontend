@@ -287,3 +287,21 @@ export const settingsSchema = z.object({
   hero_subheadline: z.string().optional(),
   hero_background_image: z.any().optional(),
 });
+
+
+export const profileSchema = z.object({
+  name: z.string().min(3, { message: "Nama harus memiliki setidaknya 3 karakter." }),
+  phone_number: z
+    .string()
+    .regex(phoneRegex, {
+      message: "Format nomor telepon Indonesia tidak valid.",
+    })
+    .optional()
+    .or(z.literal("")),
+  date_of_birth: z.date({
+    errorMap: (issue, ctx) => ({ message: 'Format tanggal tidak valid.' }),
+  }).optional().nullable(),
+  gender: z.enum(['Male', 'Female']).optional().nullable(),
+});
+
+export type ProfileFormData = z.infer<typeof profileSchema>;

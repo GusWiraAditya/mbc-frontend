@@ -32,7 +32,6 @@ import { cn } from "@/lib/utils";
 import {Badge} from "@/components/ui/badge";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import { DialogOverlay } from "@radix-ui/react-dialog";
 
 // Tipe Data Spesifik
 type ShippingCost = { service: string; description: string; cost: { value: number; etd: string; note: string; }[]; };
@@ -944,8 +943,16 @@ const selectedItems = items.filter((item) => item.selected);
 
                         <div className="lg:col-span-1 space-y-6">
                             {/* REVISI: Tombol Voucher sekarang ada di sini */}
-                                            <VoucherDialog />
-
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Voucher & Diskon</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <Button variant="outline" className="w-full" onClick={() => setIsVoucherDialogOpen(true)}>
+                                        <TicketPercent className="mr-2 h-4 w-4" /> Gunakan Voucher
+                                    </Button>
+                                </CardContent>
+                            </Card>
                             <CheckoutSummary 
                                 shippingCost={selectedShipping?.cost || 0}
                                 onPlaceOrder={handlePlaceOrder}
@@ -976,14 +983,6 @@ const selectedItems = items.filter((item) => item.selected);
             </Dialog>
             <Dialog open={isShippingDialogOpen} onOpenChange={setIsShippingDialogOpen}>
                 {/* ... Isi ShippingSelectionDialog (RadioGroup) di sini ... */}
-                <DialogContent className="sm:max-w-lg">
-                    <DialogHeader>
-                        <DialogTitle>Pilih Metode Pengiriman</DialogTitle>
-                        <DialogDescription>
-                            Silakan pilih metode pengiriman yang Anda inginkan.
-                        </DialogDescription>
-                    </DialogHeader>
-                    </DialogContent>
                 <ShippingSelector
                     options={shippingOptions}
                     isLoading={isCostLoading}
@@ -994,17 +993,15 @@ const selectedItems = items.filter((item) => item.selected);
                     }}
                 />
             </Dialog>
-            {/* <Dialog open={isVoucherDialogOpen} onOpenChange={setIsVoucherDialogOpen}> */}
+            <Dialog open={isVoucherDialogOpen} onOpenChange={setIsVoucherDialogOpen}>
                 {/* ... Isi VoucherDialog di sini ... */}
                 {/* <VoucherDialog
                     appliedVouchers={appliedVouchers}
                     onApplyVoucher={handleApplyVoucher}
                     onRemoveVoucher={handleRemoveVoucher}
                 /> */}
-                {/* <DialogOverlay /> */}
-                {/* <DialogContent className="sm:max-w-lg"> */}
-                {/* </DialogContent> */}
-            {/* // </Dialog> */}
+                <VoucherDialog />
+            </Dialog>
         </>
     );
 }

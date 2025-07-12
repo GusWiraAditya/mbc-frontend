@@ -30,6 +30,7 @@ type CartState = {
       productName: string;
       variantName: string;
       image: string | null;
+      slug: string;
       sku: string;
       price: number;
       stock: number;

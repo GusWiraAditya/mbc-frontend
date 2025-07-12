@@ -62,6 +62,7 @@ export async function middleware(request: NextRequest) {
   const isCustomerLoginPage = pathname.startsWith('/auth/login');
   const isCustomerRegisterPage = pathname.startsWith('/auth/register');
   const isAdminLoginPage = pathname.startsWith('/auth/login-admin');
+  // const isProfilePage = pathname.startsWith('/profile');
   const isAnyLoginPage = isCustomerLoginPage || isAdminLoginPage || isCustomerRegisterPage;
 
   // --- LOGIKA UTAMA ---
@@ -121,5 +122,6 @@ export const config = {
     '/auth/login-admin', 
     '/auth/login',
     '/auth/register',
+    // '/profile'
   ],
 };

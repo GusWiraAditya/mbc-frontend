@@ -9,6 +9,12 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  phone_number?: string | null;
+  date_of_birth?: string | null;
+  gender?: "Male" | "Female" | null;
+  email_verified_at?: string | null;
+  profile_picture?: string | null; // Tambahkan ini jika Anda menyimpan URL gambar
+  profile_picture_url?: string | null; // Tambahkan ini jika Anda menyimpan URL gambar
   avatar?: string;
   roles?: string[];
 }

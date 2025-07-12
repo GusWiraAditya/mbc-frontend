@@ -52,6 +52,7 @@ export type CartItem = {
   productName: string;
   variantName: string;     // Cth: "Merah / L"
   image: string | null;
+  slug: string;
   sku: string;
   price: number;
   stock: number;

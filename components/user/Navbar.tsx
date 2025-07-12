@@ -172,7 +172,7 @@ export default function Navbar() {
             {isAuthenticated && user ? (
               <div className="flex items-center gap-6">
                 <Link
-                  href="/profile/myOrder"
+                  href="/profile"
                   aria-label="Shopping Cart"
                   className={`flex items-center gap-2 font-semibold ${navColor}`}
                 >

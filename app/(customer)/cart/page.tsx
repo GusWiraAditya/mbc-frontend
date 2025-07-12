@@ -300,26 +300,30 @@ const CartItemCard = ({ item }: { item: CartItem }) => {
         disabled={isUpdating}
       />
       <div className="relative w-24 h-24 rounded-md overflow-hidden bg-gray-100">
-        <Image
-          src={
-            item.image
-              ? `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image}`
-              : "/placeholder.png"
-          }
-          alt={item.productName}
-          fill
-          className="object-cover"
-        />
+        <Link href={`/products/${item.slug}`}>
+          <Image
+            src={
+              item.image
+                ? `${process.env.NEXT_PUBLIC_LARAVEL_API_URL}/storage/${item.image}`
+                : "/placeholder.png"
+            }
+            alt={item.productName}
+            fill
+            className="object-cover"
+          />
+        </Link>
       </div>
       <div className="flex-1 flex flex-col justify-between h-24">
-        <div>
-          <h3 className="text-md font-semibold text-gray-800 line-clamp-1">
-            {item.productName}
-          </h3>
-          <p className="text-sm text-muted-foreground line-clamp-1">
-            {item.variantName}
-          </p>
-        </div>
+        <Link href={`/products/${item.slug}`}>
+          <div>
+            <h3 className="text-md font-semibold text-gray-800 line-clamp-1">
+              {item.productName}
+            </h3>
+            <p className="text-sm text-muted-foreground line-clamp-1">
+              {item.variantName}
+            </p>
+          </div>
+        </Link>
       </div>
       <div className="flex flex-col items-end justify-between h-24">
         <p className="text-lg font-bold text-primary mt-1">{formattedPrice}</p>

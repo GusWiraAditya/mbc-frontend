@@ -286,7 +286,7 @@ export default function SettingsData() {
 
           <fieldset disabled={!isEditMode} className="group">
             {/* TAB 1: INFORMASI TOKO */}
-            <TabsContent value="toko">
+            <TabsContent value="toko" className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Informasi Toko & Kontak</CardTitle>
@@ -335,6 +335,28 @@ export default function SettingsData() {
                     <Label className="mb-2" htmlFor="shop_address">Alamat Toko</Label>
                     <Textarea id="shop_address" {...register("shop_address")} />
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Biaya Pengiriman</CardTitle>
+                  <CardDescription>
+                    Pengaturan biaya pengiriman flat.
+                  </CardDescription>
+                </CardHeader>
+                <Separator/>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label className="mb-2" htmlFor="shipping_fee">Biaya Pengiriman</Label>
+                    <Input id="shipping_fee" {...register("shipping_fee")} />
+                    {errors.shipping_fee && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {errors.shipping_fee.message}
+                        </p>
+                      )}
+                  </div>
+                  
                 </CardContent>
               </Card>
             </TabsContent>
