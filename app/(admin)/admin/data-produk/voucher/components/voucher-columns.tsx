@@ -31,6 +31,7 @@ export type Voucher = {
   start_date: string | null;
   end_date: string | null;
   usage_limit: number | null;
+  times_used: number;
   usage_limit_per_user: number | null;
   is_active: boolean;
   products: { id: number; product_name: string }[];
@@ -207,6 +208,38 @@ export const getVoucherColumns = ({
       
       return <span className={className}>{`${startDate} - ${endDate}`}</span>;
     },
+  },
+  {
+    accessorKey: "usage_limit",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Batas Penggunaan <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <div className="text-sm text-center">
+        {row.original.times_used > 0
+          ? row.original.times_used.toLocaleString("id-ID")
+          : "-"}{" "} / {" "}
+        {row.original.usage_limit !== null
+          ? row.original.usage_limit.toLocaleString("id-ID") 
+          : "-"}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "usage_limit_per_user",
+    header: "Batas Per User",
+    cell: ({ row }) => (
+      <div className="text-sm text-center">
+        {row.original.usage_limit_per_user !== null
+          ? row.original.usage_limit_per_user.toLocaleString("id-ID")
+          : "-"}
+      </div>
+    ),
   },
   {
     id: "status",

@@ -62,8 +62,12 @@ export async function middleware(request: NextRequest) {
   const isCustomerLoginPage = pathname.startsWith('/auth/login');
   const isCustomerRegisterPage = pathname.startsWith('/auth/register');
   const isAdminLoginPage = pathname.startsWith('/auth/login-admin');
-  // const isProfilePage = pathname.startsWith('/profile');
+  const isProfilePage = pathname.startsWith('/profile');
+  const isCheckoutPage = pathname.startsWith('/checkout');
   const isAnyLoginPage = isCustomerLoginPage || isAdminLoginPage || isCustomerRegisterPage;
+  
+  // Halaman yang memerlukan autentikasi (login)
+  const isProtectedPage = isAdminPage || isProfilePage || isCheckoutPage;
 
   // --- LOGIKA UTAMA ---
 
@@ -72,6 +76,13 @@ export async function middleware(request: NextRequest) {
     // Jika tamu mencoba masuk ke area admin, paksa ke halaman login admin.
     if (isAdminPage) {
       return NextResponse.redirect(new URL('/auth/login-admin', request.url));
+    }
+    // Jika tamu mencoba masuk ke profile atau checkout, paksa ke halaman login customer.
+    if (isProfilePage || isCheckoutPage) {
+      // Tambahkan parameter redirect agar setelah login bisa kembali ke halaman yang dituju
+      const loginUrl = new URL('/auth/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
     }
     // Selain itu, izinkan akses (misalnya, ke halaman login customer).
     return NextResponse.next();
@@ -106,8 +117,15 @@ export async function middleware(request: NextRequest) {
     // --- SESI TIDAK VALID (misalnya, setelah logout atau cookie basi) ---
     // Jika pengguna dengan sesi tidak valid mencoba masuk ke area admin...
     if (isAdminPage) {
-      // ...paksa mereka ke halaman login.
+      // ...paksa mereka ke halaman login admin.
       return NextResponse.redirect(new URL('/auth/login-admin', request.url));
+    }
+    // Jika pengguna dengan sesi tidak valid mencoba masuk ke profile atau checkout...
+    if (isProfilePage || isCheckoutPage) {
+      // ...paksa mereka ke halaman login customer dengan parameter redirect.
+      const loginUrl = new URL('/auth/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
@@ -122,6 +140,8 @@ export const config = {
     '/auth/login-admin', 
     '/auth/login',
     '/auth/register',
-    // '/profile'
+    '/profile/:path*',
+    '/checkout/:path*'
+    
   ],
 };

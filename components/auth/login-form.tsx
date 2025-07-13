@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { loginSchema } from "@/lib/validation";
 import { loginCustomer } from "@/lib/auth";
 import { useAuthStore } from "@/lib/store";
+import { useCartStore } from "@/lib/store/useCartStore";
 import { showError, showSuccess } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,9 +36,13 @@ export default function CustomerLoginForm() {
   const passwordValue = watch("password");
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   // REVISI: State untuk mengontrol visibilitas password
   const [showPassword, setShowPassword] = useState(false);
+
+  // REVISI: Ambil parameter redirect dari URL
+  const redirectUrl = searchParams.get("redirect") || "/";
 
   const onSubmit = async (data: Inputs) => {
     if (isSubmitting) return;
@@ -53,8 +58,11 @@ export default function CustomerLoginForm() {
         isInitialized: true,
       });
 
+      await useCartStore.getState().mergeAndSyncCart();
+
       showSuccess("Login berhasil");
-      router.replace("/");
+      // REVISI: Redirect ke halaman yang dituju atau homepage
+      router.replace(redirectUrl);
     } catch (err: any) {
       showError(err?.response?.data?.message || "Login gagal");
     } finally {
@@ -62,8 +70,25 @@ export default function CustomerLoginForm() {
     }
   };
 
+  // REVISI: Fungsi untuk membuat URL Google Login dengan parameter redirect
+  const getGoogleLoginUrl = () => {
+    const baseUrl = "http://localhost:8000/auth/google/redirect";
+    if (redirectUrl !== "/") {
+      return `${baseUrl}?redirect=${encodeURIComponent(redirectUrl)}`;
+    }
+    return baseUrl;
+  };
+
   return (
     <div className="space-y-5">
+      {/* REVISI: Tampilkan pesan jika user diarahkan untuk login */}
+      {redirectUrl !== "/" && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+          <p className="font-medium">Login Required</p>
+          <p>Please login to continue to your desired page.</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
           <Label htmlFor="email" className="mb-3 block">
@@ -145,7 +170,8 @@ export default function CustomerLoginForm() {
         </div>
       </form>
 
-      <Link href="http://localhost:8000/auth/google/redirect">
+      {/* REVISI: Google Login dengan parameter redirect */}
+      <Link href={getGoogleLoginUrl()}>
         <Button variant="outline" className="w-full mb-5">
           <FaGoogle />
           Login with Google
@@ -155,7 +181,7 @@ export default function CustomerLoginForm() {
       <div className="text-center text-sm">
         Don&apos;t have an account?{" "}
         <Link
-          href="/auth/register"
+          href={`/auth/register${redirectUrl !== "/" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
           className="underline underline-offset-4 text-primary font-semibold"
         >
           Sign up

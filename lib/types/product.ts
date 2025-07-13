@@ -68,6 +68,9 @@ export type AppliedVoucher = {
   code: string;
   discountAmount: number;
   name: string;
+  type: "fixed_transaction" | "percent_transaction" | "fixed_item" | "percent_item" | "free_shipping";
+  stacking_group: "transaction_discount" | "item_discount" | "shipping_discount" | "unique"; // Grup stacking voucher
+  value: number; // Nilai diskon
   start_date: string | null; // Format ISO 8601
   end_date: string | null;   // Format ISO 8601
   description: string;
@@ -81,5 +84,6 @@ export type CartSummary = {
   subtotal: number;
   totalDiscount: number;
   shippingCost: number;
+  totalWeight: number;
   grandTotal: number;
 };

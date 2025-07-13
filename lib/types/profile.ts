@@ -21,11 +21,25 @@ export type Address = {
   postal_code?: string;
   is_primary: boolean;
 };
+// export type OrderSummary = {
+//   id: number;
+//   order_number: string;
+//   status: string;
+//   grand_total: number;
+//   created_at: string;
+// };
 export type OrderSummary = {
   id: number;
   order_number: string;
-  status: string;
   grand_total: number;
+  order_status: 'pending_payment' | 'processing' | 'shipped' | 'completed' | 'cancelled' | 'failed';
   created_at: string;
+};
+
+// Tipe data untuk informasi pagination dari Laravel
+export type PaginationInfo = {
+  current_page: number;
+  last_page: number;
+  total: number;
 };
 export type RajaOngkirItem = { id: string; name: string };

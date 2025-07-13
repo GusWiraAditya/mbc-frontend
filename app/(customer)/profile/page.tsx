@@ -7,6 +7,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {AddressList} from "@/components/account/AddressList";
 import { ProfileSection } from "@/components/account/ProfileSection";
+import { OrderHistorySection } from "@/components/account/OrderHistorySection";
 
 // Store & Tipe Data
 import { useAuthStore } from "@/lib/store";
@@ -34,26 +35,7 @@ import {
 } from "lucide-react";
 
 
-const OrderHistorySection = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Riwayat Pesanan</CardTitle>
-      <CardDescription>
-        Semua transaksi dan riwayat pembelian Anda.
-      </CardDescription>
-    </CardHeader>
-    <CardContent>
-      <div className="text-center py-10 border-2 border-dashed rounded-lg">
-        <p className="text-muted-foreground">
-          Riwayat pesanan akan ditampilkan di sini.
-        </p>
-        <p className="text-xs text-muted-foreground mt-1">
-          (Biasanya menggunakan komponen DataTable)
-        </p>
-      </div>
-    </CardContent>
-  </Card>
-);
+
 
 const SecuritySection = () => {
   const router = useRouter();

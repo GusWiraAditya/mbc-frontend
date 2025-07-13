@@ -1,16 +1,13 @@
 "use client";
 
 // --- 1. IMPORTS ---
-import { useState, useEffect, useCallback, FormEvent, ReactNode } from "react";
+import { useState} from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {AddressList} from "../../../components/account/AddressList";
 
 // Store & Tipe Data
 import { useAuthStore } from "@/lib/store";
-import api from "@/lib/api";
-import { Address, OrderSummary, RajaOngkirItem } from "@/lib/types/profile"; // Asumsi tipe terpusat
 
 // Komponen & Ikon
 import { Button } from "@/components/ui/button";
@@ -22,55 +19,17 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   User,
   MapPin,
   ShieldCheck,
-  Plus,
-  MoreVertical,
-  Home,
-  Building,
-  Trash2,
   Package,
   LogOut,
-  FileText,
-  Loader2,
 } from "lucide-react";
-import { showError, showSuccess } from "@/lib/toast";
-import { cn } from "@/lib/utils";
 
-// --- Form & Input Components ---
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-/**
- * REVISI: Panel Navigasi Cerdas di Sebelah Kiri
- */
 const AccountSidebar = ({
   user,
   activeView,
