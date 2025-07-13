@@ -68,15 +68,15 @@ function ContactComponent() {
   
 
   return (
-    <div className="container mx-auto px-4 py-16 md:py-24">
+    <div className="container mx-auto px-4 py-16 md:py-32">
       <h1 className="text-4xl font-bold text-center mb-4 text-primary">Hubungi Kami</h1>
       <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-16">
         Punya pertanyaan atau ingin berdiskusi? Kami siap membantu Anda. Kunjungi kami atau hubungi melalui detail di bawah ini.
       </p>
       
-      <div className="grid md:grid-cols-5 gap-8 lg:gap-16 items-center">
+      <div className="grid md:grid-cols-5 gap-8 lg:gap-16 items-center border rounded-2xl p-8">
         {/* Kolom Info Alamat & Kontak */}
-        <div className="md:col-span-2 space-y-8">
+        <div className="md:col-span-2 space-y-8 border rounded-2xl p-6">
           <div className="flex gap-4 items-start">
             <MapPin className="h-6 w-6 mt-1 text-primary flex-shrink-0" />
             <div>
