@@ -2,7 +2,7 @@
 
 // --- 1. IMPORTS ---
 import { useState, useEffect, useCallback, FormEvent, ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {AddressList} from "@/components/account/AddressList";
@@ -33,10 +33,6 @@ import {
   Package,
   LogOut,
 } from "lucide-react";
-
-
-
-
 const SecuritySection = () => {
   const router = useRouter();
   return (
@@ -139,11 +135,21 @@ const AccountSidebar = ({
     </aside>
   );
 };
-
 export default function MyAccountPage() {
   const { user, isInitialized, logout } = useAuthStore();
   const router = useRouter();
+  // --- TAMBAHKAN KODE INI ---
   const [activeView, setActiveView] = useState("profile"); // Default view
+  const searchParams = useSearchParams();
+   useEffect(() => {
+    // Ambil nilai dari parameter 'view' di URL
+    const viewParam = searchParams.get('view');
+    
+    // Jika ada parameter 'view' (misalnya, 'orders'), atur tab aktif sesuai nilainya
+    if (viewParam) {
+      setActiveView(viewParam);
+    }
+  }, [searchParams]);
 
   const handleLogout = async () => {
     await logout();

@@ -936,32 +936,34 @@ export default function CheckoutPage() {
     };
   }, [selectedAddressId, addresses]);
 
-  const validateOrderData = useCallback(() => {
-    if (!selectedAddressId) {
-      showError("Silakan pilih alamat pengiriman");
-      return false;
-    }
-    if (!selectedShipping) {
-      showError("Silakan pilih metode pengiriman");
-      return false;
-    }
-    if (selectedItems.length === 0) {
-      showError("Keranjang Anda kosong");
-      router.push("/cart");
-      return false;
-    }
-    if (!isMidtransLoaded || !window.snap) {
-      showError("Sistem pembayaran sedang dimuat. Silakan tunggu sebentar.");
-      return false;
-    }
-    return true;
-  }, [
-    selectedAddressId,
-    selectedShipping,
-    selectedItems,
-    isMidtransLoaded,
-    router,
-  ]);
+ const validateOrderData = useCallback(() => {
+  if (!selectedAddressId) {
+    showError("Silakan pilih alamat pengiriman");
+    return false;
+  }
+  if (!selectedShipping) {
+    showError("Silakan pilih metode pengiriman");
+    return false;
+  }
+  if (selectedItems.length === 0) {
+    showError("Keranjang Anda kosong");
+    router.push("/cart");
+    return false;
+  }
+  if (!window.snap) {
+    showError("Sistem pembayaran sedang dimuat. Silakan tunggu sebentar.");
+    return false;
+  }
+  // --- AKHIR REVISI ---
+
+  return true;
+}, [
+  selectedAddressId,
+  selectedShipping,
+  selectedItems,
+  router,
+  // Kita tidak lagi memerlukan isMidtransLoaded sebagai dependensi di sini
+]);
 
   const handlePlaceOrder = useCallback(async () => {
     if (!validateOrderData()) return;
@@ -981,7 +983,9 @@ export default function CheckoutPage() {
         voucher_codes: appliedVouchers.map((v) => v.code),
       };
 
+      
       const response = await api.post("/orders", orderData);
+      console.log(orderData)
       const { snap_token, order_id } = response.data; // Sesuaikan jika struktur berbeda
 
       if (!snap_token)
