@@ -10,7 +10,7 @@ import { th } from "zod/v4/locales";
 
 import { columns, Payment } from "./columns" // Import kolom dan tipe data
 import { DataTable } from "../components/data-table" // Import komponen utama
-import { StatCard } from "./StatCard";
+import StatCard  from "./StatCard";
 // ... sisa impor ...
 
 // Buat data mock untuk ditampilkan. Nanti ini akan datang dari API Anda.
@@ -50,6 +50,7 @@ export default function KategoriPage() {
         </Breadcrumb>
       </header>
      <main className="flex-1 flex-col gap-4 p-4 lg:p-6">
+      <StatCard />
       </main>
     </SidebarInset>
   )

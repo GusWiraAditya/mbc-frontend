@@ -73,6 +73,7 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       // Nilai Awal State
+      
       items: [],
       summary: getInitialSummary(),
       appliedVouchers: [],

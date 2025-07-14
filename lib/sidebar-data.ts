@@ -78,8 +78,7 @@ export const sidebarData: SidebarData = {
       url: "#", 
       icon: ClipboardList,
       items: [
-        { title: "Pembayaran", url: "#" },
-        { title: "Pengiriman", url: "#" },
+        { title: "Pesanan", url: "/admin/orders/" },
       ],
     },
   ],

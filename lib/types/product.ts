@@ -58,7 +58,8 @@ export type CartItem = {
   stock: number;
   weight: number;
   quantity: number;
-  selected: boolean;       // Apakah item ini dipilih untuk checkout.
+  selected: boolean;
+         // Apakah item ini dipilih untuk checkout.
 };
 
 /**

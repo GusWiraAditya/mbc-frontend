@@ -224,21 +224,16 @@ const ShippingInfo = ({ order }: { order: OrderDetail }) => {
             <span className="text-sm">Estimated delivery: {order.shipping_etd}</span>
           </div>
           {/* LOGIKA MENAMPILKAN NOMOR RESI */}
-
           {(order.order_status === 'shipped' || order.order_status === 'completed') && order.shipping_tracking_number && (
-            <>
-            <Separator />
-            <p className="font-bold">Shipping Tracking Number</p>
-            <div className="flex items-center gap-2 ">
-              <FileText className="h-4 w-4 text-primary" />
-              <div className="flex items-center gap-2 text-primary">
-                <span className="text-sm font-semibold underline">{order.shipping_tracking_number}</span>
+            <div className="flex items-center gap-2 pt-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-800">{order.shipping_tracking_number}</span>
                 <Button variant="ghost" size="icon" onClick={() => copyToClipboard(order.shipping_tracking_number!)} className="h-6 w-6">
-                  <Copy className="h-3 w-3 text-primary" />
+                  <Copy className="h-3 w-3" />
                 </Button>
               </div>
             </div>
-            </>
           )}
         </div>
       </CardContent>
