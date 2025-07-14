@@ -159,7 +159,7 @@ function HomeComponent() {
       <section className="p-6 md:px-20 md:py-10">
         <motion.div whileInView={{ opacity: 1, y: 0 }} initial={{ opacity: 0, y: 50 }} transition={{ duration: 0.5 }} className="flex items-center justify-between mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-primary">Top Collections</h2>
-            <Link href="/collections" className="text-sm font-normal cursor-pointer hover:underline">Lihat Semua</Link>
+            <Link href="/collections" className="text-sm font-normal cursor-pointer hover:underline">See More</Link>
         </motion.div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
           {isLoading ? (
@@ -217,7 +217,7 @@ function HomeComponent() {
                 key={`left-${index}`}
                 className="relative w-full h-[215px] overflow-hidden flex-shrink-0 cursor-pointer group"
               >
-                <Link href={`/gallery/${index}`}>
+                <Link href="#">
                   <Image
                     src={img}
                     alt={`Thumbnail ${index + 1}`}
@@ -240,7 +240,7 @@ function HomeComponent() {
                 key={`grid1-${index}`}
                 className="relative w-full h-[215px] overflow-hidden flex-shrink-0 cursor-pointer group"
               >
-                <Link href={`/gallery/${index + 2}`}>
+                <Link href="#">
                   <Image
                     src={img}
                     alt={`Grid1-${index + 1}`}
@@ -263,7 +263,7 @@ function HomeComponent() {
                 key={`grid2-${index}`}
                 className="relative w-full h-[215px] overflow-hidden flex-shrink-0 cursor-pointer group"
               >
-                <Link href={`/gallery/${index + 4}`}>
+                <Link href="#">
                   <Image
                     src={img}
                     alt={`Grid2-${index + 1}`}
@@ -286,7 +286,7 @@ function HomeComponent() {
                 key={`right-${index}`}
                 className="relative w-full h-[215px] overflow-hidden flex-shrink-0 cursor-pointer group"
               >
-                <Link href={`/gallery/${index + 6}`}>
+                <Link href="#">
                   <Image
                     src={img}
                     alt={`Thumbnail Right ${index + 1}`}

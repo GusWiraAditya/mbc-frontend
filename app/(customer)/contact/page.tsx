@@ -68,19 +68,19 @@ function ContactComponent() {
   
 
   return (
-    <div className="container mx-auto px-4 py-16 md:py-24">
-      <h1 className="text-4xl font-bold text-center mb-4 text-primary">Hubungi Kami</h1>
+    <div className="container mx-auto px-4 py-16 md:py-32 bg-gray-50">
+      <h1 className="text-4xl font-bold text-center mb-4 text-primary">Contact us</h1>
       <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-16">
-        Punya pertanyaan atau ingin berdiskusi? Kami siap membantu Anda. Kunjungi kami atau hubungi melalui detail di bawah ini.
+        Have questions or want to discuss? We're ready to help. Visit us or contact us using the details below.
       </p>
       
-      <div className="grid md:grid-cols-5 gap-8 lg:gap-16 items-center">
+      <div className="grid md:grid-cols-5 gap-8 lg:gap-16 items-center border rounded-2xl p-8">
         {/* Kolom Info Alamat & Kontak */}
-        <div className="md:col-span-2 space-y-8">
+        <div className="md:col-span-2 space-y-8 border rounded-2xl p-6">
           <div className="flex gap-4 items-start">
             <MapPin className="h-6 w-6 mt-1 text-primary flex-shrink-0" />
             <div>
-              <h2 className="text-xl font-semibold">Alamat Toko</h2>
+              <h2 className="text-xl font-semibold">Store Address</h2>
               <p className="text-muted-foreground mt-1">
                 {settings?.shop_address || 'Alamat tidak tersedia.'}
               </p>
@@ -98,7 +98,7 @@ function ContactComponent() {
            <div className="flex gap-4 items-start">
             <Phone className="h-6 w-6 mt-1 text-primary flex-shrink-0" />
             <div>
-              <h2 className="text-xl font-semibold">Telepon</h2>
+              <h2 className="text-xl font-semibold">Phone</h2>
               <a href={`https://wa.me/${settings?.contact_phone}`} target="_blank" rel="noopener noreferrer" className="text-muted-foreground mt-1 hover:text-primary transition-colors">
                 {settings?.contact_phone || '-'}
               </a>

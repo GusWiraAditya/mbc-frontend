@@ -38,23 +38,23 @@ const SecuritySection = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Keamanan Akun</CardTitle>
+        <CardTitle>Account Security</CardTitle>
         <CardDescription>
-          Ubah kata sandi dan kelola keamanan akun Anda.
+          Change your password and manage your account security.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex justify-between items-center border rounded-lg p-4">
         <div>
-          <p className="font-medium">Kata Sandi</p>
+          <p className="font-medium">Password</p>
           <p className="text-sm text-muted-foreground">
-            Disarankan untuk mengganti kata sandi secara berkala.
+            It is recommended to change your password periodically.
           </p>
         </div>
         <Button
           variant="outline"
           onClick={() => router.push("/profile/security")}
         >
-          Ubah Kata Sandi
+          Change Password
         </Button>
       </CardContent>
     </Card>
@@ -72,10 +72,10 @@ const AccountSidebar = ({
   onLogout: () => void;
 }) => {
   const navItems = [
-    { id: "profile", label: "Detail Profil", icon: User },
-    { id: "addresses", label: "Buku Alamat", icon: MapPin },
-    { id: "orders", label: "Riwayat Pesanan", icon: Package },
-    { id: "security", label: "Keamanan", icon: ShieldCheck },
+    { id: "profile", label: "Detail Profile", icon: User },
+    { id: "addresses", label: "Address", icon: MapPin },
+    { id: "orders", label: "Order History", icon: Package },
+    { id: "security", label: "Security", icon: ShieldCheck },
   ];
 
   return (
@@ -199,10 +199,9 @@ export default function MyAccountPage() {
     <div className="bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4 py-10 pt-32">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Akun Saya</h1>
+          <h1 className="text-3xl font-bold text-gray-800">My Account</h1>
           <p className="text-muted-foreground">
-            Kelola semua informasi akun, alamat, dan pesanan Anda di satu
-            tempat.
+            Manage all your account information, addresses, and orders in one place.
           </p>
         </div>
 

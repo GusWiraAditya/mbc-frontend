@@ -171,7 +171,7 @@ export const ProfileSection = () => {
 
   const ViewMode = () => (
     <CardContent className="space-y-2">
-      <ProfileInfoRow icon={User} label="Nama Lengkap">
+      <ProfileInfoRow icon={User} label="Full name">
         <p>{user?.name || "-"}</p>
       </ProfileInfoRow>
       <ProfileInfoRow icon={Mail} label="Email">
@@ -179,19 +179,19 @@ export const ProfileSection = () => {
           <p>{user?.email || "-"}</p>
           {user?.email_verified_at ? (
             <Badge className="bg-green-100 text-green-800">
-              <CheckCircle2 className="h-3 w-3 mr-1" /> Terverifikasi
+              <CheckCircle2 className="h-3 w-3 mr-1" /> Verified
             </Badge>
           ) : (
             <Badge variant="destructive">
-              <AlertTriangle className="h-3 w-3 mr-1" /> Belum Verifikasi
+              <AlertTriangle className="h-3 w-3 mr-1" /> Not verified
             </Badge>
           )}
         </div>
       </ProfileInfoRow>
-      <ProfileInfoRow icon={Phone} label="Nomor Telepon">
-        <p>{user?.phone_number || "Belum diatur"}</p>
+      <ProfileInfoRow icon={Phone} label="Phone Number">
+        <p>{user?.phone_number || "-"}</p>
       </ProfileInfoRow>
-      <ProfileInfoRow icon={Cake} label="Tanggal Lahir">
+      <ProfileInfoRow icon={Cake} label="Date of birth">
         <p>
           {user?.date_of_birth
             ? format(parseISO(user.date_of_birth), "d MMMM yyyy", {
@@ -245,7 +245,7 @@ export const ProfileSection = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nama Lengkap</FormLabel>
+                  <FormLabel>Full Name</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -260,7 +260,7 @@ export const ProfileSection = () => {
                 name="phone_number"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nomor Telepon</FormLabel>
+                    <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <Input type="tel" {...field} value={field.value || ""} />
                     </FormControl>
@@ -273,7 +273,7 @@ export const ProfileSection = () => {
                 name="date_of_birth"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Tanggal Lahir</FormLabel>
+                    <FormLabel>Date of Birth</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -289,7 +289,7 @@ export const ProfileSection = () => {
                                 locale: localeID,
                               })
                             ) : (
-                              <span>Pilih tanggal</span>
+                              <span>Select a date</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -328,7 +328,7 @@ export const ProfileSection = () => {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Pilih..." />
+                          <SelectValue placeholder="Select Gender" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -350,13 +350,13 @@ export const ProfileSection = () => {
             onClick={handleCancelClick}
             disabled={form.formState.isSubmitting}
           >
-            Batal
+            Cancel
           </Button>
           <Button type="submit" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Simpan Perubahan
+            Save Changes
           </Button>
         </CardFooter>
       </form>
@@ -367,14 +367,14 @@ export const ProfileSection = () => {
     <Card>
       <CardHeader className="flex-row justify-between items-center">
         <div>
-          <CardTitle>Detail Profil</CardTitle>
+          <CardTitle>Profile Details</CardTitle>
           <CardDescription>
-            Informasi pribadi Anda. Pastikan data ini selalu akurat.
+            Your personal information. Ensure this data is always accurate.
           </CardDescription>
         </div>
         {!isEditing && (
           <Button variant="outline" onClick={() => setIsEditing(true)}>
-            Edit Profil
+            Edit Profile
           </Button>
         )}
       </CardHeader>

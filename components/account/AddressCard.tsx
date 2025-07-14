@@ -23,22 +23,22 @@ export const AddressCard = ({ address, onAction, onEdit }: { address: Address; o
     const handleDelete = async () => {
         try {
             await api.delete(`/addresses/${address.id}`);
-            showSuccess('Alamat berhasil dihapus.');
+            showSuccess('Address deleted successfully.');
             onAction();
-        } catch (err) { showError('Gagal menghapus alamat.'); }
+        } catch (err) { showError('Failed to delete address.'); }
     };
     
     const handleSetPrimary = async () => {
         try {
             await api.post(`/addresses/${address.id}/set-primary`);
-            showSuccess('Alamat utama berhasil diubah.');
+            showSuccess('Primary address changed successfully.');
             onAction();
-        } catch(err) { showError('Gagal mengubah alamat utama.'); }
+        } catch(err) { showError('Failed to change primary address.'); }
     };
 
     return (
         <Card className={cn("relative transition-all", address.is_primary && "border-primary ring-2 ring-primary/20")}>
-            {address.is_primary && <Badge className="absolute -top-2 -right-2">Utama</Badge>}
+            {address.is_primary && <Badge className="absolute -top-2 -right-2">Main Address</Badge>}
             <CardHeader className="flex flex-row items-start justify-between">
                 <div className="flex items-center">
                     {getIcon(address.label)}
@@ -51,19 +51,19 @@ export const AddressCard = ({ address, onAction, onEdit }: { address: Address; o
                     <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={onEdit}>Edit</DropdownMenuItem>
-                        {!address.is_primary && <DropdownMenuItem onClick={handleSetPrimary}>Jadikan Alamat Utama</DropdownMenuItem>}
+                        {!address.is_primary && <DropdownMenuItem onClick={handleSetPrimary}>Make it the Primary Address</DropdownMenuItem>}
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">Hapus</DropdownMenuItem>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">Delete</DropdownMenuItem>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
-                                    <AlertDialogTitle>Apakah Anda Yakin?</AlertDialogTitle>
-                                    <AlertDialogDescription>Tindakan ini akan menghapus alamat "{address.label}" secara permanen. Anda tidak bisa mengurungkannya.</AlertDialogDescription>
+                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>This action will delete the address "{address.label}" permanently. You can't undo it.</AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Ya, Hapus</AlertDialogAction>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Yes, Delete</AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>

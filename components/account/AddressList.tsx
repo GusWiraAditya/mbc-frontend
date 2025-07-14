@@ -25,7 +25,7 @@ export const AddressList = ( { onAction }: { onAction: () => void }) => {
             const response = await api.get('/addresses');
             setAddresses(response.data);
         } catch (err) {
-            showError("Gagal memuat daftar alamat.");
+            showError("Failed to load address list.");
         } finally {
             setIsLoading(false);
         }
@@ -53,10 +53,10 @@ export const AddressList = ( { onAction }: { onAction: () => void }) => {
         <Card>
             <CardHeader className="flex-row justify-between items-center">
                 <div>
-                    <CardTitle>Buku Alamat</CardTitle>
-                    <CardDescription>Kelola semua alamat pengiriman Anda di sini.</CardDescription>
+                    <CardTitle>Address</CardTitle>
+                    <CardDescription>Manage all your shipping addresses here.</CardDescription>
                 </div>
-                <Button onClick={handleAddClick}><Plus className="h-4 w-4 mr-2"/> Tambah Alamat Baru</Button>
+                <Button onClick={handleAddClick}><Plus className="h-4 w-4 mr-2"/> Add New Address</Button>
             </CardHeader>
             <CardContent>
                 {isLoading ? (
@@ -68,15 +68,15 @@ export const AddressList = ( { onAction }: { onAction: () => void }) => {
                 ) : (
                     <div className="text-center py-10 border-2 border-dashed rounded-lg">
                         <MapPin className="mx-auto h-12 w-12 text-gray-300" />
-                        <p className="mt-4 text-muted-foreground">Anda belum memiliki alamat tersimpan.</p>
-                        <Button variant="outline" className="mt-4" onClick={handleAddClick}>Tambah Alamat Pertama Anda</Button>
+                        <p className="mt-4 text-muted-foreground">You don't have any saved addresses yet.</p>
+                        <Button variant="outline" className="mt-4" onClick={handleAddClick}>Add Your First Address</Button>
                     </div>
                 )}
                 <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
                     <DialogContent className="sm:max-w-2xl md:max-w-3xl">
                         <DialogHeader>
-                            <DialogTitle>{editingAddress ? 'Edit Alamat' : 'Tambah Alamat Baru'}</DialogTitle>
-                            <DialogDescription>Pastikan data alamat Anda benar untuk kemudahan pengiriman.</DialogDescription>
+                            <DialogTitle>{editingAddress ? 'Edit Address' : 'Add New Address'}</DialogTitle>
+                            <DialogDescription>Make sure your address data is correct for easy delivery.</DialogDescription>
                         </DialogHeader>
                         <AddressForm initialData={editingAddress} onSuccess={handleFormSuccess} onCancel={() => setIsFormOpen(false)} />
                     </DialogContent>

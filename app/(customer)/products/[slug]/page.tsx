@@ -141,7 +141,7 @@ const VariantSelector = ({
     {/* Warna */}
     <div>
       <Label className="text-md font-semibold mb-3 block">
-        Warna:{" "}
+        Colors:{" "}
         <span className="font-normal text-muted-foreground">
           {selectedVariant?.color.name}
         </span>
@@ -165,7 +165,7 @@ const VariantSelector = ({
     </div>
     {/* Ukuran */}
     <div>
-      <Label className="text-md font-semibold mb-2 block">Ukuran:</Label>
+      <Label className="text-md font-semibold mb-2 block">Size:</Label>
       <div className="flex flex-wrap gap-2">
         {uniqueSizes.map((size) => {
           const isAvailable = availableSizes.some((s) => s.id === size.id);
@@ -267,7 +267,7 @@ const PurchaseActions = ({
             ) : (
               <ShoppingCart className="mr-2 h-5 w-5" />
             )}
-            Keranjang
+            Add to Cart
           </Button>
           <Button size="lg" disabled={isActionDisabled} onClick={onBuyNow}>
             {isCartLoading ? (
@@ -275,13 +275,13 @@ const PurchaseActions = ({
             ) : (
               <Zap className="mr-2 h-5 w-5" />
             )}
-            Beli Sekarang
+            Buy Now
           </Button>
         </div>
       </div>
       <div className="text-sm text-muted-foreground">
-        Stok Tersedia:{" "}
-        {selectedVariant?.stock ?? "Pilih varian untuk melihat stok"}
+        Available Stock:{" "}
+        {selectedVariant?.stock ?? "Choose a variant to see stock"}
       </div>
     </>
   );

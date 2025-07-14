@@ -48,7 +48,6 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-
 type MasterData = {
   categories: { id: number; category_name: string; slug: string }[];
   colors: { id: number; name: string; hex_code: string }[];
@@ -205,7 +204,7 @@ function CollectionsComponent() {
   const FilterContent = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center pb-2 border-b">
-        <h2 className="text-xl font-semibold">Filter</h2>
+        <h2 className="text-xl font-semibold">Filters</h2>
         <Button
           variant="ghost"
           size="sm"
@@ -390,7 +389,7 @@ function CollectionsComponent() {
                   : "hover:bg-muted"
               }`}
             >
-              Terbaru
+              Recent
             </Label>
             <RadioGroupItem
               value="price_asc"
@@ -449,8 +448,8 @@ function CollectionsComponent() {
                   animate={{ opacity: 1 }}
                 >
                   <p className="text-sm text-muted-foreground mb-4">
-                    Menampilkan {productsResponse.from}-{productsResponse.to}{" "}
-                    dari {productsResponse.total} produk
+                    Showing {productsResponse.from}-{productsResponse.to}{" "}
+                    of {productsResponse.total} products
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
                     {productsResponse.data.map((product) => {
@@ -478,7 +477,7 @@ function CollectionsComponent() {
                         }
                       } else {
                         // Fallback jika tidak ada harga
-                        displayPrice = "Lihat Detail";
+                        displayPrice = "View Details";
                       }
 
                       const imageUrl = product.variants[0]?.images[0]?.path;
@@ -550,10 +549,10 @@ function CollectionsComponent() {
                   className="text-center py-20 col-span-full"
                 >
                   <h3 className="text-xl font-semibold">
-                    Produk Tidak Ditemukan
+                    No Products Found
                   </h3>
                   <p className="text-muted-foreground mt-2">
-                    Coba sesuaikan filter Anda atau reset pencarian.
+                    Try adjusting your filters or reset the search.
                   </p>
                 </motion.div>
               )}
@@ -570,7 +569,7 @@ export default function CollectionsPageWrapper() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-screen w-full">
-          Memuat Halaman Koleksi...
+          Loading Collections Page...
         </div>
       }
     >

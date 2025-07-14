@@ -116,7 +116,7 @@ const AddressDisplayCard = ({
 }) => (
   <Card>
     <CardHeader className="flex flex-row items-center justify-between">
-      <CardTitle>Alamat Pengiriman</CardTitle>
+      <CardTitle>Shipping Address</CardTitle>
       <Button
         variant="outline"
         size="sm"
@@ -124,11 +124,11 @@ const AddressDisplayCard = ({
       >
         {address ? (
           <>
-            <Edit className="h-4 w-4 mr-2" /> Ganti
+            <Edit className="h-4 w-4 mr-2" /> Change
           </>
         ) : (
           <>
-            <Plus className="h-4 w-4 mr-2" /> Tambah Alamat
+            <Plus className="h-4 w-4 mr-2" /> Add New Address
           </>
         )}
       </Button>
@@ -153,7 +153,7 @@ const AddressDisplayCard = ({
       ) : (
         <div className="text-center py-4">
           <p className="text-muted-foreground">
-            Silakan pilih atau tambah alamat pengiriman.
+            Please select or add a shipping address to proceed.
           </p>
         </div>
       )}
@@ -179,7 +179,7 @@ const AddressSelectionDialog = ({
   return (
     <DialogContent className="sm:max-w-lg">
       <DialogHeader>
-        <DialogTitle>Pilih Alamat Pengiriman</DialogTitle>
+        <DialogTitle>Choose Shipping Address</DialogTitle>
       </DialogHeader>
       <div className="max-h-[60vh] overflow-y-auto pr-4 space-y-4 py-4">
         <RadioGroup
@@ -209,7 +209,7 @@ const AddressSelectionDialog = ({
                   </span>
                   {address.is_primary && (
                     <Badge variant="default" className="ml-2 text-xs">
-                      Utama
+                      Main address
                     </Badge>
                   )}
                 </p>
@@ -226,13 +226,13 @@ const AddressSelectionDialog = ({
       </div>
       <DialogFooter className="sm:justify-between pt-4 border-t">
         <Button variant="outline" onClick={onAddNew}>
-          <Plus className="h-4 w-4 mr-2" /> Tambah Alamat Baru
+          <Plus className="h-4 w-4 mr-2" /> Add new address
         </Button>
         <Button
           onClick={() => selectedId && onSelect(selectedId)}
           disabled={!selectedId}
         >
-          Pilih Alamat
+          Choose address
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -249,7 +249,7 @@ const CheckoutItemsList = () => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <ShoppingBag className="h-5 w-5 mr-2" />
-          Produk yang Dipesan ({itemsToCheckout.length})
+          Ordered Products ({itemsToCheckout.length})
         </CardTitle>
       </CardHeader>
       <CardContent className="divide-y">
@@ -355,14 +355,14 @@ const ShippingDisplayCard = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Metode Pengiriman</CardTitle>
+        <CardTitle>Shipping Method</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           // Tampilan saat loading
           <div className="flex items-center gap-4">
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
-            <p className="text-muted-foreground">Menghitung ongkos kirim...</p>
+            <p className="text-muted-foreground">Calculate shipping costs...</p>
           </div>
         ) : shipping ? (
           // Tampilan SETELAH metode dipilih
@@ -372,7 +372,7 @@ const ShippingDisplayCard = ({
                 {shipping.courier.toUpperCase()} - {shipping.service}
               </p>
               <p className="text-sm text-muted-foreground">
-                Estimasi {shipping.etd}
+                Estimate {shipping.etd}
               </p>
               <p className="font-semibold mt-1 text-primary">
                 {formatCurrency(shipping.cost)}
@@ -380,17 +380,17 @@ const ShippingDisplayCard = ({
             </div>
             <Button variant="outline" size="sm" onClick={onSelectClick}>
               <Edit className="h-4 w-4 mr-2" />
-              Ganti
+              Change
             </Button>
           </div>
         ) : // Tampilan SEBELUM metode dipilih
         hasAddress ? (
           <Button className="w-full" variant="outline" onClick={onSelectClick}>
-            Pilih Metode Pengiriman
+            Choose shipping method
           </Button>
         ) : (
           <p className="text-center text-sm text-muted-foreground py-4">
-            Pilih alamat terlebih dahulu untuk melihat opsi pengiriman.
+            Select an address first to see shipping options.
           </p>
         )}
       </CardContent>
@@ -437,7 +437,7 @@ const ShippingSelectionDialog = ({
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle>Pilih Metode Pengiriman</DialogTitle>
+        <DialogTitle>Choose shipping method</DialogTitle>
       </DialogHeader>
       <div className="max-h-[60vh] overflow-y-auto pr-4 py-4">
         {isLoading ? (
@@ -448,9 +448,9 @@ const ShippingSelectionDialog = ({
         ) : !options || options.length === 0 ? (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Tidak Ada Opsi Pengiriman</AlertTitle>
+            <AlertTitle>No Shipping Options</AlertTitle>
             <AlertDescription>
-              Tidak ada jasa pengiriman yang tersedia untuk alamat tujuan Anda.
+              There are no delivery services available for your destination address.
             </AlertDescription>
           </Alert>
         ) : (
@@ -474,7 +474,7 @@ const ShippingSelectionDialog = ({
                           {courier.name} - {serviceOption.service}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {serviceOption.description} (Estimasi{" "}
+                          {serviceOption.description} (Estimate{" "}
                           {serviceOption.cost[0].etd})
                         </p>
                       </div>
@@ -494,10 +494,10 @@ const ShippingSelectionDialog = ({
       </div>
       <DialogFooter>
         <Button variant="ghost" onClick={onCancel}>
-          Batal
+          Cancel
         </Button>
         <Button disabled={!selectedValue} onClick={handleSelect}>
-          Pilih Pengiriman
+          Select Shipping
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -536,16 +536,16 @@ const VoucherDialog = ({
   return (
     <DialogContent className="sm:max-w-lg">
       <DialogHeader>
-        <DialogTitle>Kelola Voucher</DialogTitle>
+        <DialogTitle>Manage Vouchers</DialogTitle>
         <DialogDescription>
-          Masukkan kode voucher atau hapus voucher yang sedang Anda gunakan.
+          Enter the voucher code or delete the voucher you are currently using.
         </DialogDescription>
       </DialogHeader>
       <div className="space-y-2">
         <div className="flex space-x-2">
           <Input
             id="voucher"
-            placeholder="Masukkan kode di sini"
+            placeholder="Enter code here"
             value={inputCode}
             onChange={(e) => setInputCode(e.target.value.toUpperCase())}
             disabled={isApplyingVoucher}
@@ -557,7 +557,7 @@ const VoucherDialog = ({
             {isApplyingVoucher ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              "Terapkan"
+              "Apply"
             )}
           </Button>
         </div>
@@ -568,7 +568,7 @@ const VoucherDialog = ({
       {appliedVouchers.length > 0 && (
         <>
           <div className="space-y-3 pt-4 border-t max-h-[40vh] overflow-y-auto pr-2">
-            <Label>Voucher Diterapkan:</Label>
+            <Label>Voucher Applied:</Label>
             {appliedVouchers.map((voucher) => {
               const formattedStartDate = voucher.start_date
                 ? format(new Date(voucher.start_date), "d MMM yyyy", {
@@ -596,7 +596,7 @@ const VoucherDialog = ({
                           <div className="flex items-center gap-1">
                             <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full"></div>
                             <span className="text-xs text-emerald-600 font-medium">
-                              AKTIF
+                              ACTIVE
                             </span>
                           </div>
                         </CardTitle>
@@ -629,7 +629,7 @@ const VoucherDialog = ({
                       <CalendarDays className="h-4 w-4 mt-0.5 text-emerald-600 shrink-0" />
                       <div>
                         <p className="text-xs text-emerald-600 font-medium">
-                          Masa Berlaku
+                          Validity period
                         </p>
                         <p className="text-emerald-800 font-medium">
                           {formattedStartDate} - {formattedEndDate}
@@ -642,7 +642,7 @@ const VoucherDialog = ({
             })}
           </div>
           <DialogFooter>
-            <Button onClick={onClose}>Selesai</Button>
+            <Button onClick={onClose}>Accept</Button>
           </DialogFooter>
         </>
       )}
@@ -679,25 +679,25 @@ const CheckoutSummary = ({
   return (
     <Card className="sticky top-24">
       <CardHeader>
-        <CardTitle>Ringkasan Pembayaran</CardTitle>
+        <CardTitle>Payment Summary</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">Subtotal Produk</span>
+          <span className="text-muted-foreground">Subtotal</span>
           <span className="font-semibold">
             {formatCurrency(summary.subtotal)}
           </span>
         </div>
         {summary.totalDiscount > 0 && (
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Diskon Voucher</span>
+            <span className="text-muted-foreground">Discount</span>
             <span className="font-semibold text-green-600">
               - {formatCurrency(summary.totalDiscount)}
             </span>
           </div>
         )}
         <div className="flex justify-between items-center">
-          <span className="text-muted-foreground">Biaya Pengiriman</span>
+          <span className="text-muted-foreground">Shipping costs</span>
 
           {hasShippingDiscount ? (
             // Tampilan JIKA ada diskon gratis ongkir
@@ -718,7 +718,7 @@ const CheckoutSummary = ({
         </div>
         <Separator />
         <div className="flex justify-between font-bold text-lg">
-          <span>Total Pembayaran</span>
+          <span>Total Payment</span>
           <span>{formatCurrency(grandTotal)}</span>
         </div>
       </CardContent>
@@ -734,7 +734,7 @@ const CheckoutSummary = ({
           ) : (
             <ShieldCheck className="mr-2 h-4 w-4" />
           )}
-          Bayar Sekarang
+          Proceed Payment
         </Button>
       </CardFooter>
     </Card>
@@ -1042,9 +1042,9 @@ export default function CheckoutPage() {
         onLoad={() => setIsMidtransLoaded(true)}
       />
       <div className="bg-gray-50 min-h-screen">
-        <div className="container mx-auto px-4 py-24">
+        <div className="container mx-auto px-4 py-32">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
-            Konfirmasi Pesanan
+            Order Confirmation
           </h1>
           <div className="grid grid-cols-1 lg:grid-cols-3 lg:gap-4 items-start">
             <div className="lg:col-span-2 space-y-4 mb-4 md:mb-0">
@@ -1077,7 +1077,7 @@ export default function CheckoutPage() {
             <div className="lg:col-span-1 space-y-4 md:sticky md:top-28 md:max-h-lvh ">
               <Card>
                 <CardHeader>
-                  <CardTitle>Voucher & Diskon</CardTitle>
+                  <CardTitle>Voucher & Discount</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {appliedVouchers.length > 0 ? (
@@ -1179,7 +1179,7 @@ export default function CheckoutPage() {
       >
         <DialogContent className="sm:max-w-lg md:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Tambah Alamat Baru</DialogTitle>
+            <DialogTitle>Add New Address</DialogTitle>
           </DialogHeader>
           <AddressForm
             onSuccess={(newAddress) => {
