@@ -70,7 +70,7 @@ export const AddressForm = ({
         }));
         setProvinces(formattedData);
       } catch (err) {
-        showError("Gagal memuat data provinsi.");
+        showError("Failed to load province data.");
       } finally {
         setIsLoading((prev) => ({ ...prev, provinces: false }));
       }
@@ -101,7 +101,7 @@ export const AddressForm = ({
         }));
         setCities(formattedData);
       } catch (err) {
-        showError("Gagal memuat data kota.");
+        showError("Failed to load city data.");
       } finally {
         setIsLoading((prev) => ({ ...prev, cities: false }));
       }
@@ -124,7 +124,7 @@ export const AddressForm = ({
           response.data.map((d: any) => ({ id: d.id.toString(), name: d.name }))
         );
       } catch (err) {
-        showError("Gagal memuat data kecamatan.");
+        showError("Failed to load sub-district data.");
       } finally {
         setIsLoading((prev) => ({ ...prev, districts: false }));
       }
@@ -147,7 +147,7 @@ export const AddressForm = ({
         }));
         setSubdistricts(formattedData);
       } catch (err) {
-        showError("Gagal memuat data kecamatan.");
+        showError("Failed to load sub-district data.");
       } finally {
         setIsLoading((prev) => ({ ...prev, subdistricts: false }));
       }
@@ -199,12 +199,12 @@ export const AddressForm = ({
           formData
         );
         newAddressData = response.data; // Asumsi backend mengembalikan data di 'data'
-        showSuccess("Alamat berhasil diperbarui.");
+        showSuccess("Address updated successfully.");
       } else {
         // Untuk tambah baru, kita tangkap responsnya
         const response = await api.post("/addresses", formData);
         newAddressData = response.data; // Asumsi backend mengembalikan data di 'data'
-        showSuccess("Alamat baru berhasil ditambahkan.");
+        showSuccess("New address added successfully.");
       }
       onSuccess(newAddressData); // <-- Panggil onSuccess DENGAN data alamat baru
     } catch (err: any) {
@@ -213,7 +213,7 @@ export const AddressForm = ({
         const errorMessages = Object.values(errors).flat().join("\n");
         showError(errorMessages);
       } else {
-        showError("Terjadi kesalahan saat menyimpan alamat.");
+        showError("An error occurred while saving the address.");
       }
     } finally {
       setIsLoading((prev) => ({ ...prev, submit: false }));
@@ -226,18 +226,18 @@ export const AddressForm = ({
       className="space-y-4 max-h-[70vh] overflow-y-auto p-1 pr-4"
     >
       <div>
-        <Label htmlFor="label">Label Alamat</Label>
+        <Label htmlFor="label" className="mb-2">Address Labels</Label>
         <Input
           id="label"
           value={formData.label}
           onChange={(e) => handleChange("label", e.target.value)}
-          placeholder="Cth: Rumah, Kantor Ayah"
+          placeholder="Exc: Home, Office, etc."
           required
         />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="recipient_name">Nama Penerima</Label>
+          <Label htmlFor="recipient_name" className="mb-2">Recipient's name</Label>
           <Input
             id="recipient_name"
             value={formData.recipient_name}
@@ -246,7 +246,7 @@ export const AddressForm = ({
           />
         </div>
         <div>
-          <Label htmlFor="phone_number">No. Telepon</Label>
+          <Label htmlFor="phone_number" className="mb-2">Phone Number</Label>
           <Input
             id="phone_number"
             type="tel"
@@ -258,7 +258,7 @@ export const AddressForm = ({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="province">Province</Label>
+          <Label htmlFor="province" className="mb-2">Province</Label>
           <Select
             value={formData.province_id}
             onValueChange={(v) => handleSelectChange("province", v, provinces)}
@@ -268,7 +268,7 @@ export const AddressForm = ({
             <SelectTrigger>
               <SelectValue
                 placeholder={
-                  isLoading.provinces ? "Memuat..." : "Pilih Provinsi..."
+                  isLoading.provinces ? "Loading..." : "Select Province..."
                 }
               />
             </SelectTrigger>
@@ -282,7 +282,7 @@ export const AddressForm = ({
           </Select>
         </div>
         <div>
-          <Label htmlFor="city">City</Label>
+          <Label htmlFor="city" className="mb-2">City</Label>
           <Select
             value={formData.city_id}
             onValueChange={(v) => handleSelectChange("city", v, cities)}
@@ -291,7 +291,7 @@ export const AddressForm = ({
           >
             <SelectTrigger>
               <SelectValue
-                placeholder={isLoading.cities ? "Memuat..." : "Pilih Kota..."}
+                placeholder={isLoading.cities ? "Loading..." : "Choose City..."}
               />
             </SelectTrigger>
             <SelectContent>
@@ -306,7 +306,7 @@ export const AddressForm = ({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="district">District</Label>
+          <Label htmlFor="district" className="mb-2">District</Label>
           <Select
             value={formData.district_id}
             onValueChange={(v) => handleSelectChange("district", v, districts)}
@@ -316,7 +316,7 @@ export const AddressForm = ({
             <SelectTrigger>
               <SelectValue
                 placeholder={
-                  isLoading.districts ? "Memuat..." : "Pilih District..."
+                  isLoading.districts ? "Loading..." : "Choose District..."
                 }
               />
             </SelectTrigger>
@@ -330,7 +330,7 @@ export const AddressForm = ({
           </Select>
         </div>
         <div>
-          <Label htmlFor="subdistrict">Subdistrict</Label>
+          <Label htmlFor="subdistrict" className="mb-2">Subdistrict</Label>
           <Select
             value={formData.subdistrict_id}
             onValueChange={(v) =>
@@ -342,7 +342,7 @@ export const AddressForm = ({
             <SelectTrigger>
               <SelectValue
                 placeholder={
-                  isLoading.subdistricts ? "Memuat..." : "Pilih Kecamatan..."
+                  isLoading.subdistricts ? "Loading..." : "Select District..."
                 }
               />
             </SelectTrigger>
@@ -357,7 +357,7 @@ export const AddressForm = ({
         </div>
       </div>
       <div>
-        <Label htmlFor="postal_code">Kode Pos</Label>
+        <Label htmlFor="postal_code" className="mb-2">Postal code</Label>
         <Input
           id="postal_code"
           value={formData.postal_code}
@@ -365,12 +365,12 @@ export const AddressForm = ({
         />
       </div>
       <div>
-        <Label htmlFor="address_detail">Alamat Lengkap</Label>
+        <Label htmlFor="address_detail" className="mb-2">Address Detail</Label>
         <Textarea
           id="address_detail"
           value={formData.address_detail}
           onChange={(e) => handleChange("address_detail", e.target.value)}
-          placeholder="Nama jalan, nomor rumah, RT/RW, dan patokan."
+          placeholder="Enter detailed address here"
           required
         />
       </div>
@@ -383,18 +383,18 @@ export const AddressForm = ({
           }
         />
         <Label htmlFor="is_primary" className="cursor-pointer">
-          Jadikan alamat utama
+          Make it the main address
         </Label>
       </div>
       <div className="flex justify-end gap-2 pt-4 border-t">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Batal
+          Cancel
         </Button>
         <Button type="submit" disabled={isLoading.submit}>
           {isLoading.submit && (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           )}
-          {initialData ? "Simpan Perubahan" : "Tambah Alamat"}
+          {initialData ? "Save Changes" : "Add Address"}
         </Button>
       </div>
     </form>

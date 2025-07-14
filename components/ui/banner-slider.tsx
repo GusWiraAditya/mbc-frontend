@@ -59,9 +59,9 @@ const BannerSlider = () => {
             />
             <div className="absolute inset-0 flex items-center justify-center text-center">
               <div className="text-white">
-                <p className="text-2xl md:text-6xl font-bold text-secondary opacity-75">{slide.title}</p>
-                <p className="text-5xl md:text-9xl font-extrabold text-secondary opacity-75">{slide.highlight}</p>
-                <p className="text-xl md:text-3xl font-semibold text-secondary opacity-75">{slide.subtitle}</p>
+                <p className="text-2xl md:text-6xl font-bold text-white">{slide.title}</p>
+                <p className="text-5xl md:text-9xl font-extrabold text-white">{slide.highlight}</p>
+                <p className="text-xl md:text-3xl font-semibold text-white">{slide.subtitle}</p>
               </div>
             </div>
           </div>

@@ -2,8 +2,8 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().email({ message: "Email tidak valid" }),
-  password: z.string().min(8, { message: "Minimal 8 karakter" }),
+  email: z.string().email({ message: "Invalid email" }),
+  password: z.string().min(8, { message: "Minimum 8 characters" }),
 });
 
 // TAMBAHKAN SKEMA BARU INI
@@ -258,13 +258,13 @@ export const settingsSchema = z.object({
   shop_tagline: z.string().optional(),
   contact_email: z
     .string()
-    .email({ message: "Format email tidak valid." })
+    .email({ message: "Invalid email format." })
     .optional()
     .or(z.literal("")),
   contact_phone: z
     .string()
     .regex(phoneRegex, {
-      message: "Format nomor telepon Indonesia tidak valid.",
+      message: "The Indonesian phone number format is invalid.",
     })
     .optional()
     .or(z.literal("")),
@@ -290,11 +290,11 @@ export const settingsSchema = z.object({
 
 
 export const profileSchema = z.object({
-  name: z.string().min(3, { message: "Nama harus memiliki setidaknya 3 karakter." }),
+  name: z.string().min(3, { message: "Name must have at least 3 characters." }),
   phone_number: z
     .string()
     .regex(phoneRegex, {
-      message: "Format nomor telepon Indonesia tidak valid.",
+      message: "The Indonesian phone number format is invalid.",
     })
     .optional()
     .or(z.literal("")),
